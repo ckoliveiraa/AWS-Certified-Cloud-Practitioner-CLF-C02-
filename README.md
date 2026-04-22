@@ -2,6 +2,8 @@
 
 > Curso estruturado de preparação para a certificação **AWS Certified Cloud Practitioner (CLF-C02)**.
 
+🎯 **[Fazer o simulado final interativo →](https://ckoliveiraa.github.io/AWS-Certified-Cloud-Practitioner-CLF-C02-/)**
+
 ---
 
 ## Sobre o Exame
@@ -56,7 +58,7 @@
 3. Revise **flashcards** e **glossário** ao final de cada módulo.
 4. Faça o **simulado** de cada domínio (meta: ≥ 80%).
 5. Execute os **labs** de cada módulo ([1](./01-conceitos-de-nuvem/labs.md), [2](./02-seguranca-e-conformidade/labs.md), [3](./03-tecnologia-e-servicos/labs.md), [4](./04-cobranca-precos-e-suporte/labs.md)).
-6. Complete o [**simulado final interativo**](./docs/index.html) antes de agendar o exame.
+6. Complete o [**simulado final interativo**](https://ckoliveiraa.github.io/AWS-Certified-Cloud-Practitioner-CLF-C02-/) antes de agendar o exame.
 
 ---
 
