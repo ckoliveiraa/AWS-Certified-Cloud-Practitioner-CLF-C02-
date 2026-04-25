@@ -181,17 +181,33 @@
 
 > Pratica a [aula 2.7 — Auditoria](./2.7-auditoria-conformidade.md) — diferença entre log de aplicação (CloudWatch) e log de API (CloudTrail).
 
-1. **CloudWatch** → **Log groups** → **Create log group** → `/learning/app`.
-2. Crie um log stream `test-stream`.
-3. Use a aba **Test events** ou CLI:
-   ```bash
-   aws logs put-log-events --log-group-name /learning/app \
-     --log-stream-name test-stream \
-     --log-events timestamp=$(date +%s000),message="Erro fake na app"
-   ```
-4. **Metrics** → **Create alarm** → métrica `EC2 CPUUtilization` da instância do Lab 2.7 → threshold > 80% → ação: criar SNS topic e inscrever seu e-mail.
+### Parte A — Criar Log Group e Log Stream
+1. **CloudWatch** → **Log groups** → **Create log group** → nome `/learning/app` → **Create**.
+2. Clique no nome `/learning/app` para entrar nele → **Create log stream** → nome `test-stream` → **Create**.
 
-**Validação:** recebe e-mail quando alarme dispara (force CPU com `stress` se quiser testar).
+### Parte B — Inserir um log event (precisa de CLI)
+> ⚠️ O console do CloudWatch **não permite** inserir log events manualmente — só leitura. Use **CloudShell** (ícone `>_` no topo do console, já autenticado) ou AWS CLI local:
+
+```bash
+aws logs put-log-events \
+  --log-group-name /learning/app \
+  --log-stream-name test-stream \
+  --log-events timestamp=$(date +%s000),message="Erro fake na app"
+```
+
+> 💡 **Conta nova?** O CloudShell pode ficar indisponível por até 48h enquanto a AWS verifica a conta. Alternativas: instalar AWS CLI local (https://aws.amazon.com/cli/) ou pular essa parte e seguir para o alarme.
+
+Volte ao log stream no console — a mensagem aparece listada.
+
+### Parte C — Criar Alarme com SNS
+1. **CloudWatch** → **Alarms** → **Create alarm** → **Select metric**.
+2. Escolha **EC2** → **Per-Instance Metrics** → instância do Lab 2.7 → métrica **`CPUUtilization`**.
+3. Threshold: **Static** → **Greater than 80**.
+4. **Notification:** crie novo SNS topic `learning-alarms` → inscreva seu e-mail.
+5. Confirme a inscrição no e-mail recebido (link "Confirm subscription").
+6. Nome do alarme: `cpu-high-learning`.
+
+**Validação:** força CPU na EC2 (via SSH/Session Manager rodando `stress --cpu 2 --timeout 300`) e veja o alarme passar para **In alarm** + e-mail chegando.
 
 > 🟡 10 métricas customizadas e 5 GB de logs grátis/mês por 12 meses.
 
