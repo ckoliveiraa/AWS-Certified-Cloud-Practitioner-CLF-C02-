@@ -44,7 +44,28 @@
 1. **S3** → **Create bucket** → nome único global (ex.: `site-lab-<seu-nome>-<data>`).
 2. **Desmarque** *Block all public access* (confirme com `confirm`).
 3. Após criar: **Properties** → **Static website hosting** → **Enable** → Index document: `index.html`.
-4. Crie um arquivo `index.html` local com `<h1>Site no S3</h1>` e faça upload.
+4. Crie um arquivo `index.html` local com o conteúdo abaixo e faça upload:
+
+   ```html
+   <!DOCTYPE html>
+   <html lang="pt-BR">
+   <head>
+     <meta charset="UTF-8">
+     <title>Site Estático no S3</title>
+     <style>
+       body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; text-align: center; }
+       h1 { color: #ff9900; }
+       .badge { background: #232f3e; color: white; padding: 8px 16px; border-radius: 4px; display: inline-block; }
+     </style>
+   </head>
+   <body>
+     <h1>🚀 Site Estático no S3</h1>
+     <p class="badge">Lab 3.2 — AWS CLF-C02</p>
+     <p>Servido diretamente do Amazon S3, sem servidor!</p>
+     <p>Aluno: <strong>Seu Nome Aqui</strong></p>
+   </body>
+   </html>
+   ```
 5. **Permissions** → **Bucket policy** → cole (substitua `SEU-BUCKET-AQUI`):
    ```json
    {
