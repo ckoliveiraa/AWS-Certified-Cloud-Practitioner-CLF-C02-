@@ -221,13 +221,42 @@ Volte ao log stream no console — a mensagem aparece listada.
 1. **Config** → **Get started** → **1-click setup**.
 2. Resources: marque apenas **S3 Bucket** e **Security Group** (limita custo).
 3. Adicione regra gerenciada: `s3-bucket-public-read-prohibited`.
-4. Vá ao bucket do Lab 2.4 e tire o bloqueio público (apenas para teste).
-5. Volte ao Config → veja o bucket marcado como **Non-compliant**.
-6. Recoloque o bloqueio → volta a **Compliant**.
+4. Crie um bucket **vazio** de teste chamado `teste-config-<seu-nome>`.
+5. No bucket → **Permissions → Block public access** → Edit → desmarque tudo → confirme com `confirm`.
+6. Ainda em **Permissions → Bucket policy** → Edit → cole o JSON abaixo (substitua `SEU-BUCKET-AQUI`):
+
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [{
+       "Sid": "PublicRead",
+       "Effect": "Allow",
+       "Principal": "*",
+       "Action": "s3:GetObject",
+       "Resource": "arn:aws:s3:::SEU-BUCKET-AQUI/*"
+     }]
+   }
+   ```
+
+7. Volte ao Config → veja o bucket marcado como **Non-compliant** (pode levar alguns minutos).
+8. Volte ao bucket → marque o **Block public access** novamente + delete a bucket policy → Config volta a **Compliant**.
 
 **Validação:** entende compliance contínua e linha do tempo de configuração.
 
-> 🔴 **Desligue o Config** ao terminar (Settings → Stop recording). Custo: US$ 0,003 por item gravado + US$ 0,001 por avaliação de regra.
+### 🧹 Limpeza obrigatória ao terminar este lab
+
+Para não acumular custo:
+
+1. **Delete o bucket de teste** (`teste-config-<seu-nome>`): S3 → bucket → **Empty** → depois **Delete**.
+2. **Pause o AWS Config:** Config → **Settings** → **Edit** → desmarque **Enable recording** → **Save**. (Ou via CloudShell: `aws configservice stop-configuration-recorder --configuration-recorder-name default`.)
+3. **Delete o recorder e o canal de entrega** (CloudShell):
+   ```bash
+   aws configservice delete-configuration-recorder --configuration-recorder-name default
+   aws configservice delete-delivery-channel --delivery-channel-name default
+   ```
+4. Opcional: delete o bucket que o Config criou para histórico (`config-bucket-<account-id>`).
+
+> 🔴 **Por que isso importa:** Config cobra **US$ 0,003 por item gravado** + **US$ 0,001 por avaliação de regra**. Se esquecer ligado, pode chegar a US$ 5–10/mês silenciosamente.
 
 ---
 
