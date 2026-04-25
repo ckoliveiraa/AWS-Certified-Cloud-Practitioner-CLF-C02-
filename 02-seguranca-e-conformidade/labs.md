@@ -131,7 +131,7 @@
 
 > Pratica a [aula 2.5 — Proteção de Rede](./2.5-protecao-rede.md). Use a VPC default para não criar custo extra.
 
-1. **EC2** → **Launch instance** → AMI **Amazon Linux 2023** → tipo **t2.micro** ou **t3.micro** (Free Tier).
+1. **EC2** → **Launch instance** → **Name:** `learning-web-ec2` → AMI **Amazon Linux 2023** → tipo **t2.micro** ou **t3.micro** (Free Tier).
 2. **Network settings:** VPC default, subnet pública, **Auto-assign public IP = Enable**.
 3. Crie SG `learning-web-sg` permitindo **HTTP (80)** de `0.0.0.0/0`.
 4. **User data** (instala nginx):
