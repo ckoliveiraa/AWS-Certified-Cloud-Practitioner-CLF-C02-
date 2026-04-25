@@ -133,7 +133,7 @@
 
 1. **EC2** → **Launch instance** → AMI **Amazon Linux 2023** → tipo **t2.micro** ou **t3.micro** (Free Tier).
 2. **Network settings:** VPC default, subnet pública, **Auto-assign public IP = Enable**.
-3. Crie SG `sg-learning-web` permitindo **HTTP (80)** de `0.0.0.0/0`.
+3. Crie SG `learning-web-sg` permitindo **HTTP (80)** de `0.0.0.0/0`.
 4. **User data** (instala nginx):
    ```bash
    #!/bin/bash
