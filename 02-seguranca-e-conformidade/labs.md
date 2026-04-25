@@ -7,6 +7,8 @@
 
 ## Lab 2.1 — Criar usuário admin e parar de usar a conta root 🟢
 
+> Pratica a [aula 2.2 — IAM](./2.2-iam.md).
+>
 > **Boas práticas AWS**: a conta **root** deve ser usada **apenas** para tarefas que exigem o root (ex.: alterar plano de suporte, fechar conta). Para o dia a dia, crie um usuário IAM com permissões administrativas.
 
 ### Passo 1 — Criar grupo `Admins`
@@ -38,7 +40,7 @@
 
 ## Lab 2.2 — Testar permissões com IAM Policy Simulator 🟢
 
-> Pratica o conceito de **least privilege** sem aplicar políticas reais.
+> Pratica a [aula 2.2 — IAM](./2.2-iam.md). Pratica o conceito de **least privilege** sem aplicar políticas reais.
 
 1. Acesse **IAM** → **Policy simulator** ([policysim.aws.amazon.com](https://policysim.aws.amazon.com)).
 2. Selecione o usuário `admin-carlos`.
@@ -52,6 +54,8 @@
 
 ## Lab 2.3 — Criar Role para EC2 acessar S3 🟢
 
+> Pratica a [aula 2.2 — IAM](./2.2-iam.md) (conceito de **Roles**).
+
 1. **IAM** → **Roles** → **Create role**.
 2. Trusted entity: **AWS service** → **EC2**.
 3. Anexe `AmazonS3ReadOnlyAccess`.
@@ -62,6 +66,8 @@
 ---
 
 ## Lab 2.4 — Bucket S3 criptografado com SSE-S3 🟡
+
+> Pratica a [aula 2.4 — Criptografia](./2.4-criptografia.md) (criptografia em repouso).
 
 1. **S3** → **Create bucket** → nome único global (ex.: `learning-clf-<seu-nome>-<data>`).
 2. **Block all public access** ✅ (deixe marcado).
@@ -77,7 +83,7 @@
 
 ## Lab 2.5 — KMS Customer Managed Key + SSE-KMS 🟡
 
-> Pratica o conceito de **chave gerenciada pelo cliente** (CMK) visto na aula 2.4.
+> Pratica o conceito de **chave gerenciada pelo cliente** (CMK) visto na [aula 2.4 — Criptografia](./2.4-criptografia.md).
 
 1. **KMS** → **Customer managed keys** → **Create key**.
 2. **Key type:** Symmetric. **Key usage:** Encrypt and decrypt.
@@ -95,7 +101,7 @@
 
 ## Lab 2.6 — Secrets Manager vs Parameter Store 🟢🟠
 
-> Pratica a aula 2.4 — comparação direta entre os dois.
+> Pratica a [aula 2.4 — Criptografia](./2.4-criptografia.md) — comparação direta entre os dois.
 
 ### Parte A — Parameter Store (🟢 grátis)
 1. **Systems Manager** → **Parameter Store** → **Create parameter**.
@@ -123,7 +129,7 @@
 
 ## Lab 2.7 — Security Group vs NACL na prática 🟡
 
-> Pratica a aula 2.5. Use a VPC default para não criar custo extra.
+> Pratica a [aula 2.5 — Proteção de Rede](./2.5-protecao-rede.md). Use a VPC default para não criar custo extra.
 
 1. **EC2** → **Launch instance** → AMI **Amazon Linux 2023** → tipo **t2.micro** ou **t3.micro** (Free Tier).
 2. **Network settings:** VPC default, subnet pública, **Auto-assign public IP = Enable**.
@@ -155,7 +161,7 @@
 
 ## Lab 2.8 — CloudTrail (Management Events) 🟢
 
-> Ajuste vs versão antiga: usa **só Management events** (grátis). **Data events em S3 cobram** desde o 1º evento.
+> Pratica a [aula 2.7 — Auditoria](./2.7-auditoria-conformidade.md). Usa **só Management events** (grátis). **Data events em S3 cobram** desde o 1º evento.
 
 1. **CloudTrail** → **Trails** → **Create trail**.
 2. Nome: `trail-learning`.
@@ -173,7 +179,7 @@
 
 ## Lab 2.9 — CloudWatch Logs + Alarm 🟡
 
-> Pratica a aula 2.7 — diferença entre log de aplicação (CloudWatch) e log de API (CloudTrail).
+> Pratica a [aula 2.7 — Auditoria](./2.7-auditoria-conformidade.md) — diferença entre log de aplicação (CloudWatch) e log de API (CloudTrail).
 
 1. **CloudWatch** → **Log groups** → **Create log group** → `/learning/app`.
 2. Crie um log stream `test-stream`.
@@ -193,7 +199,7 @@
 
 ## Lab 2.10 — AWS Config (audita mudanças) 🔴
 
-> Pratica a aula 2.7. **Atenção:** Config cobra por item gravado.
+> Pratica a [aula 2.7 — Auditoria](./2.7-auditoria-conformidade.md). **Atenção:** Config cobra por item gravado.
 
 1. **Config** → **Get started** → **1-click setup**.
 2. Resources: marque apenas **S3 Bucket** e **Security Group** (limita custo).
@@ -210,6 +216,8 @@
 
 ## Lab 2.11 — GuardDuty (com aviso) 🟠
 
+> Pratica a [aula 2.6 — Detecção e Resposta](./2.6-deteccao-resposta.md).
+
 1. **GuardDuty** → **Get Started** → **Enable**.
 2. Aguarde alguns minutos. Findings reais podem demorar dias.
 3. Em **Settings** → **Sample findings** → **Generate sample findings** para ver o painel populado.
@@ -221,6 +229,8 @@
 ---
 
 ## Lab 2.12 — Trusted Advisor (checks grátis) 🟢
+
+> Pratica a [aula 2.6 — Detecção e Resposta](./2.6-deteccao-resposta.md).
 
 1. **Trusted Advisor** no console.
 2. Veja os **6 checks gratuitos** (Basic Support):
@@ -239,6 +249,8 @@
 ---
 
 ## Lab 2.13 — AWS Artifact (baixar relatório) 🟢
+
+> Pratica a [aula 2.7 — Auditoria](./2.7-auditoria-conformidade.md).
 
 1. **AWS Artifact** → **Reports**.
 2. Filtre por **SOC 2** ou **ISO 27001**.
