@@ -199,15 +199,16 @@ aws logs put-log-events \
 
 Volte ao log stream no console — a mensagem aparece listada.
 
-### Parte C — Criar Alarme com SNS
-1. **CloudWatch** → **Alarms** → **Create alarm** → **Select metric**.
-2. Escolha **EC2** → **Per-Instance Metrics** → instância do Lab 2.7 → métrica **`CPUUtilization`**.
-3. Threshold: **Static** → **Greater than 80**.
-4. **Notification:** crie novo SNS topic `learning-alarms` → inscreva seu e-mail.
-5. Confirme a inscrição no e-mail recebido (link "Confirm subscription").
-6. Nome do alarme: `cpu-high-learning`.
+### Parte C — Alarmes (apenas conceitual, não vamos criar)
 
-**Validação:** força CPU na EC2 (via SSH/Session Manager rodando `stress --cpu 2 --timeout 300`) e veja o alarme passar para **In alarm** + e-mail chegando.
+> ℹ️ Para a prova, basta entender **como o fluxo funciona**, sem precisar configurar:
+>
+> 1. **CloudWatch Alarm** monitora uma métrica (ex.: `CPUUtilization > 80%`).
+> 2. Quando a métrica passa do threshold, o alarme **muda de estado** (`OK → In alarm`).
+> 3. O alarme dispara uma **ação** — o mais comum é publicar num **SNS topic**.
+> 4. **SNS** entrega a notificação para os inscritos (e-mail, SMS, Lambda, fila SQS).
+>
+> 🎯 **Frase para a prova:** *"CloudWatch Alarm + SNS = notificação automática quando métrica passa do limite."*
 
 > 🟡 10 métricas customizadas e 5 GB de logs grátis/mês por 12 meses.
 
