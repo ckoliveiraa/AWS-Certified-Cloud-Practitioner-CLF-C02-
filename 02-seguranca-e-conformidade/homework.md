@@ -125,9 +125,26 @@
 ### Tarefas
 1. Ative o **AWS Config** (apenas para recurso `S3 Bucket` para limitar custo).
 2. Adicione a regra gerenciada **`s3-bucket-public-read-prohibited`**.
-3. Crie um bucket de teste e remova o "Block Public Access".
-4. Aguarde alguns minutos. Veja o bucket marcado como **Non-compliant** no Config.
-5. Recoloque o bloqueio. Veja voltar para **Compliant**.
+3. Crie um bucket de teste **vazio** chamado `teste-publico-<seu-nome>`.
+4. **S3 → bucket → Permissions → Block public access** → Edit → desmarque tudo → confirme com `confirm`.
+5. Em **Bucket policy** → Edit → cole o JSON abaixo (substitua `SEU-BUCKET-AQUI`):
+
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [{
+       "Sid": "PublicRead",
+       "Effect": "Allow",
+       "Principal": "*",
+       "Action": "s3:GetObject",
+       "Resource": "arn:aws:s3:::SEU-BUCKET-AQUI/*"
+     }]
+   }
+   ```
+
+6. Aguarde alguns minutos. Veja o bucket marcado como **Non-compliant** no Config.
+7. Volte ao bucket → **Block public access** → marque tudo → Save. Delete a bucket policy.
+8. Aguarde — Config volta para **Compliant**.
 
 ### Pergunta de raciocínio
 > *"Qual a diferença entre o Config detectar a violação e impedir a violação? Que serviço AWS impede de fato?"* (dica: SCP em Organizations).
