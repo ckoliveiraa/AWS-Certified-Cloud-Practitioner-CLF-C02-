@@ -221,9 +221,9 @@ Volte ao log stream no console — a mensagem aparece listada.
 1. **Config** → **Get started** → **1-click setup**.
 2. Resources: marque apenas **S3 Bucket** e **Security Group** (limita custo).
 3. Adicione regra gerenciada: `s3-bucket-public-read-prohibited`.
-4. Crie um bucket **vazio** de teste chamado `teste-config-<seu-nome>`.
-5. No bucket → **Permissions → Block public access** → Edit → desmarque tudo → confirme com `confirm`.
-6. Ainda em **Permissions → Bucket policy** → Edit → cole o JSON abaixo (substitua `SEU-BUCKET-AQUI`):
+4. Vá ao **bucket do Lab 2.4** (`learning-clf-<seu-nome>-<data>`).
+5. **Permissions → Block public access** → Edit → desmarque tudo → confirme com `confirm`.
+6. Ainda em **Permissions → Bucket policy** → Edit → cole o JSON abaixo (substitua `SEU-BUCKET-AQUI` pelo nome do bucket do Lab 2.4):
 
    ```json
    {
@@ -247,7 +247,7 @@ Volte ao log stream no console — a mensagem aparece listada.
 
 Para não acumular custo:
 
-1. **Delete o bucket de teste** (`teste-config-<seu-nome>`): S3 → bucket → **Empty** → depois **Delete**.
+1. **Restaure a segurança do bucket do Lab 2.4:** marque **Block public access** novamente e delete a bucket policy. **Não delete o bucket** — ele continua sendo usado nos labs seguintes.
 2. **Pause o AWS Config:** Config → **Settings** → **Edit** → desmarque **Enable recording** → **Save**. (Ou via CloudShell: `aws configservice stop-configuration-recorder --configuration-recorder-name default`.)
 3. **Delete o recorder e o canal de entrega** (CloudShell):
    ```bash
