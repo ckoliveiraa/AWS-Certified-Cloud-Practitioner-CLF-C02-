@@ -57,10 +57,42 @@
 
 ### Tarefas
 1. Crie tabela DynamoDB `Users` com PK `email`.
-2. Crie um Lambda `register-user` (Python) que recebe um JSON `{ "email": "x", "nome": "y" }` e grava no DynamoDB.
+2. Crie um Lambda `register-user` (Python 3.12) que recebe um JSON `{ "email": "x", "nome": "y" }` e grava no DynamoDB.
 3. Anexe ao Lambda uma role com permissão `dynamodb:PutItem` apenas na tabela `Users`.
 4. Teste pelo console do Lambda com **Test event**.
 5. Verifique no DynamoDB que o item foi gravado.
+
+### Snippet base (você completa)
+
+```python
+import boto3
+import json
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('Users')
+
+def lambda_handler(event, context):
+    # TODO 1: extrair email e nome do event
+    # TODO 2: chamar table.put_item(Item={...})
+    # TODO 3: retornar status 200 com mensagem de sucesso
+    # Bônus: tratar erro (try/except) e retornar 400 se faltar campo
+    pass
+```
+
+### Test event sugerido
+
+```json
+{ "email": "carlos@aws.com", "nome": "Carlos Oliveira" }
+```
+
+### Dicas
+- 💡 No console Lambda → **Configuration** → **Permissions** → clique no nome da role → **Add permissions** → policy `dynamodb:PutItem` no ARN da tabela `Users`.
+- 💡 Nunca use `AmazonDynamoDBFullAccess` em produção (princípio do mínimo privilégio).
+- 💡 Veja `boto3.Table.put_item` na [doc oficial](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/put_item.html).
+
+### Critério de sucesso
+- ✅ Lambda retorna `200` no console
+- ✅ Item visível em **DynamoDB → Tables → Users → Explore items**
 
 ### Pergunta de raciocínio
 > *"Quais 3 vantagens do serverless (Lambda + DynamoDB) vs subir uma EC2 com Postgres para esse mesmo caso de uso?"*
@@ -79,12 +111,42 @@
 **Cenário:** Subir uma aplicação que **só pode ser acessada via Load Balancer** — nunca direto.
 
 ### Tarefas (sem usar ALB pago — simulamos com SG)
-1. Suba uma EC2 `app-server` em **subnet privada** (use a VPC do Lab 3.4).
-2. Configure o SG da EC2 para aceitar HTTP **apenas** de outro SG `lb-sg` (que será o "balanceador").
-3. Suba uma 2ª EC2 `bastion` em **subnet pública** com SG `lb-sg`.
-4. Mostre que:
-   - Internet **não** acessa direto a `app-server` (sem rota e sem SG)
-   - O `bastion` consegue acessar a `app-server` (SG referenciando SG)
+1. Crie uma **VPC customizada** (`Create VPC → VPC and more`) com 1 subnet pública + 1 privada (sem NAT). CIDR `10.0.0.0/16`.
+2. Suba uma EC2 `app-server` (Amazon Linux 2023, t2.micro) em **subnet privada** com:
+   - **Sem IP público**
+   - **User data** instalando httpd (mesmo do Lab 3.1)
+   - **Role** `EC2-SSM-Role` (para acesso via Session Manager)
+3. Crie SG `lb-sg` permitindo HTTP/22 da internet.
+4. Crie SG `app-sg` permitindo **HTTP (80) apenas do `lb-sg`** (referenciando o SG, não CIDR).
+5. Suba uma 2ª EC2 `bastion` em **subnet pública** com SG `lb-sg`.
+
+### Testes obrigatórios
+
+```bash
+# Da sua máquina local
+curl http://<ip-publico-app-server>           # ❌ deve falhar (sem IP público)
+curl http://<ip-publico-bastion>              # ✅ deve falhar (httpd não instalado no bastion)
+
+# Conecte no bastion via Session Manager e rode:
+curl http://<ip-privado-app-server>           # ✅ deve retornar HTML do httpd
+```
+
+### Dicas
+- 💡 Subnet privada precisa de **VPC Endpoints** (SSM, EC2Messages, SSMMessages) para Session Manager funcionar **sem NAT Gateway** — VPC Endpoint Interface custa US$ 0,01/h, planeje ≤2h.
+- 💡 Alternativa **mais barata:** ponha a `app-server` em subnet pública com SG bloqueando tudo da internet (só do `lb-sg`). Sem precisar de endpoints.
+- 💡 Para referenciar SG por ID: SG inbound rule → Source = `Custom` → digite `sg-xxxx`.
+
+### Diagrama esperado
+
+```
+Internet → bastion (subnet pública, lb-sg)
+                  ↓ (HTTP via SG ref)
+            app-server (subnet privada, app-sg)
+```
+
+### Critério de sucesso
+- ✅ `curl` direto da internet para app-server **falha**
+- ✅ `curl` do bastion para o IP privado da app-server **funciona**
 
 ### Pergunta de raciocínio
 > *"Qual a diferença entre referenciar um SG por ID (`sg-xxx`) e por CIDR (`0.0.0.0/0`)? Por que o primeiro é mais seguro?"*
@@ -92,9 +154,10 @@
 ### Entregáveis
 - Print do `curl <ip-app-server>` falhando da internet ✅
 - Print do `curl <ip-app-server>` funcionando do bastion ✅
+- Diagrama da arquitetura
 - Resposta da pergunta
 
-> 🟡 2 EC2 t2.micro = 1.500h/mês — ainda dentro de 750h se forem usadas alternadamente. **Termine ambas ao final.**
+> 🟡 2 EC2 t2.micro = 1.500h/mês — ainda dentro de 750h se forem usadas alternadamente. **Termine ambas ao final.** Se usar VPC Endpoints, **delete imediatamente** ao terminar (cobra por hora).
 
 ---
 
@@ -159,12 +222,76 @@
 4. Lance a stack 2 vezes (uma para `dev`, outra para `staging`).
 5. **Delete uma das stacks** e veja todos os recursos sumirem juntos.
 
+### Template base (você completa)
+
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Homework Desafio 6 - Multi-ambiente
+
+Parameters:
+  Env:
+    Type: String
+    AllowedValues: [dev, staging, prod]
+    Description: Nome do ambiente
+
+Resources:
+  AppBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'app-bucket-${Env}-${AWS::AccountId}'
+      VersioningConfiguration:
+        Status: Enabled
+
+  ItemsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'Items-${Env}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+  TasksQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub 'tasks-${Env}'
+
+Outputs:
+  BucketName:
+    Value: !Ref AppBucket
+  TableName:
+    Value: !Ref ItemsTable
+  QueueUrl:
+    Value: !Ref TasksQueue
+```
+
+### Como lançar
+
+1. Salve como `multi-env.yaml`.
+2. **CloudFormation** → **Create stack** → **Upload template file** → escolha o arquivo.
+3. **Stack name:** `app-dev`. Em **Parameters**, escolha `Env: dev` → Submit.
+4. Aguarde `CREATE_COMPLETE`.
+5. Repita para `app-staging` com `Env: staging`.
+
+### Bônus (opcional)
+- Adicione **Drift Detection** após criar: stack → **Stack actions** → **Detect drift**.
+- Modifique manualmente o bucket no console (desligue o versionamento) → rode drift novamente → veja `MODIFIED`.
+
+### Critério de sucesso
+- ✅ 2 stacks com `CREATE_COMPLETE`
+- ✅ Recursos visíveis no S3, DynamoDB e SQS com nomes que incluem o ambiente
+- ✅ Ao deletar `app-dev`, todos os 3 recursos somem juntos
+
 ### Pergunta de raciocínio
 > *"Liste 3 vantagens de usar CloudFormation vs criar recursos no console manualmente."*
 
 ### Entregáveis
-- Template YAML/JSON
+- Template YAML/JSON completo
 - Print das 2 stacks com `CREATE_COMPLETE`
+- Print do drift detection (se fez o bônus)
 - Resposta da pergunta
 
 > 🟢 CloudFormation é grátis; só os recursos criados podem cobrar (S3 e DynamoDB têm tier grátis generoso).
@@ -177,16 +304,57 @@
 
 ### Tarefas (escolha A ou B; ambas valem)
 
-#### Opção A — RDS
-1. Crie um RDS MySQL `db.t3.micro` (Lab 3.9).
-2. Conecte via CloudShell: `mysql -h <endpoint> -u admin -p`.
-3. Crie database `loja`, tabela `produtos` e insira 3 linhas.
-4. Liste com `SELECT *`.
+#### Opção A — RDS MySQL
+
+1. **RDS** → **Create database** → **Standard create**.
+2. Engine **MySQL** Community, Template **Free tier**.
+3. **DB instance identifier:** `lab-db`. Master user: `admin`. Senha: anote.
+4. Instance class: **db.t3.micro**. Storage: **20 GB gp2**. Desmarque **Storage autoscaling**.
+5. **Connectivity:** Public access **Yes** (só para o lab — evite em prod). SG permitindo MySQL (3306) **só do seu IP**.
+6. **Multi-AZ:** No. **Backup retention:** 0 dias.
+7. **Create database**. Aguarde ~10 min até **Available**.
+
+8. Conecte via **CloudShell**:
+   ```bash
+   mysql -h <endpoint-do-rds> -u admin -p
+   ```
+
+9. Rode:
+   ```sql
+   CREATE DATABASE loja;
+   USE loja;
+   CREATE TABLE produtos (
+     id INT PRIMARY KEY,
+     nome VARCHAR(100),
+     preco DECIMAL(10,2)
+   );
+   INSERT INTO produtos VALUES (1, 'Notebook', 3500.00), (2, 'Mouse', 80.00), (3, 'Teclado', 250.00);
+   SELECT * FROM produtos;
+   ```
 
 #### Opção B — DynamoDB
-1. Use a tabela `Users` do Lab 3.5.
-2. Insira 5 itens (com `cargo` variando).
-3. Use **Scan** filtrando por `cargo = "Eng. de Dados"`.
+
+1. **DynamoDB** → **Create table**.
+2. **Name:** `Users`. **Partition key:** `id` (String).
+3. **Capacity mode:** On-demand. **Create**.
+4. Tabela criada → **Explore items** → **Create item** → adicione 5 itens variando o atributo `cargo`:
+   ```json
+   { "id": "1", "nome": "Carlos", "cargo": "Eng. de Dados" }
+   { "id": "2", "nome": "Ana", "cargo": "Eng. de Dados" }
+   { "id": "3", "nome": "Bruno", "cargo": "Designer" }
+   { "id": "4", "nome": "Diana", "cargo": "PM" }
+   { "id": "5", "nome": "Eduardo", "cargo": "Eng. de Dados" }
+   ```
+5. **Scan** com filtro `cargo = "Eng. de Dados"` → deve retornar 3 itens.
+
+### Dicas
+- 💡 RDS demora ~10 min para ficar `Available`. Use o tempo para revisar a teoria.
+- 💡 Se preferir, faça **as duas opções** para comparar a experiência (RDS pesa mais; DynamoDB é instantâneo).
+- 💡 No DynamoDB, **Scan** lê a tabela toda — em produção use **Query** (com PK).
+
+### Critério de sucesso
+- ✅ RDS: SELECT retorna 3 produtos
+- ✅ DynamoDB: Scan filtrado retorna 3 itens
 
 ### Pergunta de raciocínio
 > *"Quando usar RDS vs DynamoDB? Liste 2 cenários ideais para cada um."*
@@ -195,7 +363,11 @@
 - Print do `SELECT` (RDS) ou Scan (DynamoDB)
 - Resposta da pergunta
 
-> 🟡 RDS dentro do Free Tier; DynamoDB sempre grátis nesse volume. **Delete o RDS imediatamente após o teste.**
+### 🧹 Limpeza obrigatória
+- **RDS:** instância → **Actions** → **Delete** → desmarque "Create final snapshot" → confirme.
+- **DynamoDB:** tabela → **Delete table**.
+
+> 🟡 RDS dentro do Free Tier (750h/mês de db.t3.micro); DynamoDB sempre grátis nesse volume. **Delete o RDS imediatamente após o teste — vilão #1 de surpresa de fatura.**
 
 ---
 
