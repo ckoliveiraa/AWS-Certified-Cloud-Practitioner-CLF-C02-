@@ -199,7 +199,34 @@
 
 ---
 
-## Desafio 8 — Simulado de Cenários
+## Desafio 8 — Bedrock playground (IA generativa) 🟠 ~US$ 0,01
+
+**Cenário:** experimentar IA generativa pela API gerenciada da AWS, sem instalar nada.
+
+### Tarefas
+1. **Bedrock** → **Model access** → **Manage model access** → habilite **Anthropic Claude 3 Haiku** (mais barato) e **Amazon Titan Text Lite**. Aguarde aprovação (geralmente instantânea).
+2. **Bedrock** → **Playgrounds** → **Chat**.
+3. Escolha o modelo **Claude 3 Haiku**.
+4. Mande prompts e compare respostas:
+   - "Explique o que é Amazon S3 em 3 frases."
+   - "Liste 5 boas práticas de segurança em uma conta AWS."
+   - "Escreva um Lambda em Python que lê um item do DynamoDB."
+5. Troque para **Titan Text Lite** e mande os mesmos prompts.
+6. **Compare:** qual modelo deu resposta melhor? Qual foi mais rápido?
+
+### Pergunta de raciocínio
+> *"Quando vale a pena usar Bedrock vs treinar um modelo no SageMaker? Liste 2 cenários para cada."*
+
+### Entregáveis
+- Print do playground com pelo menos 2 prompts respondidos
+- Resposta da pergunta (5-8 linhas)
+- Comparação Claude vs Titan (3 linhas)
+
+> 🟠 Bedrock cobra **por token** (~US$ 0,00025/1k tokens em Claude Haiku). Esses prompts somam centavos. **Sem free tier — confira o Cost Explorer no dia seguinte.**
+
+---
+
+## Desafio 9 — Simulado de Cenários
 
 Resolva sem consultar:
 
@@ -278,6 +305,7 @@ Crie pasta `homework-modulo-3/` com:
 - `desafio-5-fanout.png`
 - `desafio-6-template.yaml`
 - `desafio-7-resposta.md`
+- `desafio-8-bedrock.png` + `desafio-8-comparacao.md`
 - `simulado-respostas.md`
 - `arquitetura-3tier.png` (bônus)
 
