@@ -1,6 +1,6 @@
 # Módulo 2 — Segurança e Conformidade
 
-> **Domínio 2 do exame CLF-C02** — Peso: **30%** (o maior!)
+> **Domínio 2 do exame CLF-C02** — Peso: **30%**
 
 Este módulo cobre o modelo de responsabilidade compartilhada, IAM, serviços de segurança, criptografia, conformidade e auditoria.
 
