@@ -17,17 +17,17 @@ Este módulo cobre a infraestrutura global da AWS e os principais serviços de c
 
 ## Estrutura do Módulo
 
-| # | Aula | Duração |
-|---|------|---------|
-| 3.1 | [Infraestrutura Global AWS](./3.1-infraestrutura-global.md) | 20 min |
-| 3.2 | [Computação: EC2, Lambda, ECS/EKS, Beanstalk](./3.2-computacao.md) | 35 min |
-| 3.3 | [Armazenamento: S3, EBS, EFS, FSx, Snow](./3.3-armazenamento.md) | 30 min |
-| 3.4 | [Bancos de Dados: RDS, Aurora, DynamoDB, Redshift](./3.4-bancos-de-dados.md) | 30 min |
-| 3.5 | [Rede: VPC, Route 53, CloudFront, Direct Connect](./3.5-rede.md) | 35 min |
-| 3.6 | [Monitoramento e Gestão: CloudWatch, CloudFormation, SSM](./3.6-monitoramento-gestao.md) | 25 min |
-| 3.7 | [Integração e Mensageria: SNS, SQS, EventBridge](./3.7-integracao-mensageria.md) | 20 min |
-| 3.8 | [Desenvolvedor: Code*, Cloud9, X-Ray](./3.8-ferramentas-desenvolvedor.md) | 20 min |
-| 3.9 | [Analytics, IA/ML: Athena, Glue, SageMaker, Bedrock](./3.9-analytics-ia-ml.md) | 25 min |
+| # | Aula |
+|---|------|
+| 3.1 | [Infraestrutura Global AWS](./3.1-infraestrutura-global.md) |
+| 3.2 | [Computação: EC2, Lambda, ECS/EKS, Beanstalk](./3.2-computacao.md) |
+| 3.3 | [Armazenamento: S3, EBS, EFS, FSx, Snow](./3.3-armazenamento.md) |
+| 3.4 | [Bancos de Dados: RDS, Aurora, DynamoDB, Redshift](./3.4-bancos-de-dados.md) |
+| 3.5 | [Rede: VPC, Route 53, CloudFront, Direct Connect](./3.5-rede.md) |
+| 3.6 | [Monitoramento e Gestão: CloudWatch, CloudFormation, SSM](./3.6-monitoramento-gestao.md) |
+| 3.7 | [Integração e Mensageria: SNS, SQS, EventBridge](./3.7-integracao-mensageria.md) |
+| 3.8 | [Desenvolvedor: Code*, Cloud9, X-Ray](./3.8-ferramentas-desenvolvedor.md) |
+| 3.9 | [Analytics, IA/ML: Athena, Glue, SageMaker, Bedrock](./3.9-analytics-ia-ml.md) |
 
 ---
 
@@ -65,6 +65,7 @@ Este módulo cobre a infraestrutura global da AWS e os principais serviços de c
 ## Recursos Complementares
 
 - [Laboratórios práticos](./labs.md)
+- [Homework](./homework.md)
 - [Glossário](./glossario.md)
 - [Flashcards](./flashcards.md)
 - [Simulado — Domínio 3](./simulado.md)
