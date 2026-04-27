@@ -14,22 +14,40 @@
 1. **EC2** → **Launch instance**.
 2. **Name:** `web-lab-ec2`.
 3. **AMI:** Amazon Linux 2023. **Tipo:** `t2.micro` ou `t3.micro` (Free Tier).
-4. **Key pair:** `Proceed without a key pair` (não precisamos de SSH).
+4. **Key pair:** `Proceed without a key pair` (vamos usar EC2 Instance Connect pelo navegador).
 5. **Network:** VPC default, subnet pública, **Auto-assign public IP = Enable**.
 6. **Security Group:** crie `web-lab-sg` permitindo:
    - **HTTP (80)** de `0.0.0.0/0`
-   - **SSH (22)** apenas do **seu IP** (descubra em https://checkip.amazonaws.com)
-7. **IAM role:** `EC2-S3-ReadOnly` (criada no Lab 2.3 do Módulo 2).
-8. **Advanced details → User data:**
-   ```bash
-   #!/bin/bash
-   dnf install -y httpd
-   echo "<h1>Olá CLF-C02 - Lab 3.1</h1>" > /var/www/html/index.html
-   systemctl enable --now httpd
-   ```
-9. **Launch instance**.
+   - **SSH (22)** de `0.0.0.0/0` (necessário pro EC2 Instance Connect)
+7. **Launch instance** e aguarde **`2/2 checks passed`** (~2 min).
 
-**Validação:** após ~2 min, abra `http://<public-ip>` no navegador → vê o título *"Olá CLF-C02 - Lab 3.1"*.
+### Conectar via EC2 Instance Connect
+
+8. Selecione a instância → botão **Connect** → aba **EC2 Instance Connect** → **Connect**.
+9. Vai abrir um terminal no navegador. Rode os comandos abaixo **um por um** (não cole tudo junto, o terminal pode capturar caracteres estranhos do paste):
+
+   ```bash
+   sudo dnf install -y httpd
+   ```
+
+   ```bash
+   echo "<h1>Olá CLF-C02 - Lab 3.1</h1>" | sudo tee /var/www/html/index.html
+   ```
+
+   ```bash
+   sudo systemctl enable --now httpd
+   ```
+
+   ```bash
+   curl localhost
+   ```
+
+   O `curl localhost` deve retornar `<h1>Olá CLF-C02 - Lab 3.1</h1>` — confirma que o Apache subiu.
+
+**Validação:** abra `http://<public-ip>` no navegador → vê o título *"Olá CLF-C02 - Lab 3.1"*.
+
+> ⚠️ **Use `http://`, não `https://`** — o navegador costuma forçar HTTPS e dá erro (a EC2 só responde na porta 80).
+
 
 > 🟡 **Free Tier:** 750h/mês de t2/t3.micro nos 12 primeiros meses. **Mantenha a EC2 rodando** durante os labs 3.6 e 3.10 — termine apenas no final.
 
