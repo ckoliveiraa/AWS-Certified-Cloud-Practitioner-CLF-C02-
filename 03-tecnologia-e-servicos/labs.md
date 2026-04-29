@@ -225,12 +225,102 @@
 
 ### Parte C — Disparar o alarme (opcional, para ver funcionando)
 
-1. Conecte na EC2 do Lab 3.1 via **Session Manager** (ver Lab 3.14).
-2. Rode `yes > /dev/null & yes > /dev/null & yes > /dev/null &` para subir CPU a 100%.
-3. Aguarde ~5 min → alarme muda para **In alarm** e você recebe **e-mail do SNS**.
-4. Mate os processos: `pkill yes`.
+1. Conecte na EC2 do Lab 3.1 via **EC2 Instance Connect** (botão **Connect** → aba **EC2 Instance Connect** → **Connect**) ou via **Session Manager** (ver Lab 3.14) se já removeu a regra SSH 22 do SG.
+2. No terminal, rode para saturar a CPU:
+   ```bash
+   yes > /dev/null & yes > /dev/null & yes > /dev/null &
+   ```
+   - `yes` imprime "y" infinitamente (queima CPU); `> /dev/null` descarta a saída; `&` joga em background → 3 processos paralelos levam a `t2/t3.micro` a ~100%.
+3. (opcional) Confirme com `top` — você vê 3 processos `yes` no topo. Aperte `q` pra sair.
+4. Aguarde ~5 min → alarme muda para **In alarm** e você recebe **e-mail do SNS**.
+5. Mate os processos:
+   ```bash
+   pkill yes
+   ```
+   Confirme com `top` que sumiram — senão a EC2 fica fervendo CPU à toa.
+
+### Parte D — CloudWatch Logs: inspecionar log de um job do Glue 🔴
+
+> **Por que aqui?** CloudWatch não é só métrica/alarme — é também o **destino padrão de logs** de quase todo serviço AWS (Lambda, ECS, Glue, API Gateway…). Vamos ver isso na prática com o **AWS Glue**, que escreve logs automaticamente em **CloudWatch Logs**.
+
+> ⚠️ **Custo:** Glue **não tem free tier**. Um job Python Shell de poucos segundos custa ~**US$ 0,03** (1/16 DPU × tempo). Se preferir não pagar, pule para a Parte D-bis abaixo (apenas explorar a interface do CloudWatch Logs).
+
+#### Passos
+
+1. **IAM** → **Roles** → **Create role** → AWS service → **Glue**.
+   - Adicione policies: `AWSGlueServiceRole` e `CloudWatchLogsFullAccess`.
+   - Nome: `GlueLabRole`.
+
+2. **AWS Glue** → **ETL jobs** → **Create job** → **Script editor** → **Engine: Python shell** → **Create script**.
+
+3. **Job details:**
+   - **Name:** `glue-log-lab`
+   - **IAM Role:** `GlueLabRole`
+   - **Type:** Python Shell
+   - **Python version:** 3.9
+   - **Data processing units:** **1/16 DPU** (o menor — mais barato)
+
+4. Aba **Script** → cole:
+   ```python
+   import logging, sys, time
+
+   logger = logging.getLogger()
+   logger.setLevel(logging.INFO)
+   handler = logging.StreamHandler(sys.stdout)
+   logger.addHandler(handler)
+
+   logger.info("=== Lab 3.6 — log do Glue indo para CloudWatch ===")
+   for i in range(1, 6):
+       logger.info(f"Processando item {i}/5")
+       time.sleep(1)
+   logger.warning("Exemplo de WARNING")
+   logger.info("Job concluido com sucesso")
+   ```
+
+5. **Save** → **Run**. Aguarde status **Succeeded** (~30 s) na aba **Runs**.
+
+6. Na linha do run, clique em **Output logs** (link azul) — abre direto o **CloudWatch Logs** no log group `/aws-glue/python-jobs/output`, no log stream do run.
+
+7. No CloudWatch Logs, observe:
+   - Cada `logger.info(...)` virou um evento com timestamp.
+   - Use **Filter events** (campo de busca) → digite `WARNING` → filtra só o aviso.
+   - Aba **Logs Insights** → selecione o log group `/aws-glue/python-jobs/output` → rode:
+     ```
+     fields @timestamp, @message
+     | filter @message like /Processando/
+     | sort @timestamp desc
+     ```
+
+**Validação:** você vê os 5 "Processando item N/5" + o WARNING no CloudWatch Logs, vindos do job do Glue.
+
+#### Conceitos para fixar
+- **Glue grava 2 log groups por job:** `/aws-glue/python-jobs/output` (stdout/`logger`) e `/aws-glue/python-jobs/error` (stderr/exceptions). Em jobs Spark é `/aws-glue/jobs/...`.
+- Cada **execução do job** = um **log stream** próprio dentro do log group.
+- **Logs Insights** = SQL-like sobre logs (mesma sintaxe serve pra Lambda, ECS, VPC Flow Logs).
+
+#### 🧹 Limpeza
+- **Glue** → job `glue-log-lab` → **Delete**.
+- **CloudWatch Logs** → log groups `/aws-glue/python-jobs/output` e `/error` → **Delete** (opcional, mas evita acúmulo).
+- **IAM role** `GlueLabRole` → delete se não for reutilizar.
+
+### Parte D-bis — Alternativa grátis (se não quiser rodar o Glue) 🟢
+
+Se quiser pular o custo do Glue, dá pra ver o mesmo conceito com a Lambda do **Lab 3.3**:
+
+1. Lambda `hello-clf` → aba **Test** → execute 2-3 vezes.
+2. Aba **Monitor** → **View CloudWatch logs** → entra no log group `/aws/lambda/hello-clf`.
+3. Abra o log stream mais recente → veja `START / END / REPORT` + qualquer `print()` que a função fez.
+4. **Logs Insights** funciona igual:
+   ```
+   fields @timestamp, @message
+   | filter @type = "REPORT"
+   | stats avg(@duration), max(@duration)
+   ```
+
+> 💡 **Mesmo princípio:** todo serviço gerenciado AWS manda logs para CloudWatch Logs sem você configurar nada — basta a role ter permissão de escrita.
 
 > 🟡 10 alarmes + 1.000 publicações SNS grátis/mês por 12 meses.
+> 🔴 Glue Python Shell 1/16 DPU ≈ **US$ 0,06/h** — um job de 30 s sai ~US$ 0,001. Mesmo assim, **delete o job ao final** pra não esquecer rodando agendado.
 
 ---
 
@@ -575,6 +665,7 @@ Para evitar custo inesperado, ao terminar **delete na ordem**:
 - [ ] **SQS queue + SNS topic** (Lab 3.11) — delete
 - [ ] **S3 bucket** do Lab 3.2 — empty + delete (após CloudFront sumir)
 - [ ] **CloudWatch Alarm** + **SNS topic alarms-lab** (Lab 3.6) — delete
+- [ ] **Glue job `glue-log-lab`** + log groups `/aws-glue/python-jobs/*` + role `GlueLabRole` (Lab 3.6 Parte D) — delete
 - [ ] **Step Functions state machine** + Lambdas (Lab 3.17) — delete
 - [ ] **Athena tabela e query results** (Lab 3.15) — delete a tabela e limpe a pasta `athena-results/` no S3
 - [ ] **IAM role** `EC2-SSM-Role` (Lab 3.14) — manter se for reutilizar; senão delete
