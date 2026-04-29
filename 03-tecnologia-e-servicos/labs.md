@@ -226,7 +226,7 @@
 
 ### Parte C — Disparar o alarme (opcional, para ver funcionando)
 
-1. Conecte na EC2 do Lab 3.1 via **EC2 Instance Connect** (botão **Connect** → aba **EC2 Instance Connect** → **Connect**) ou via **Session Manager** (ver Lab 3.14) se já removeu a regra SSH 22 do SG.
+1. Conecte na EC2 do Lab 3.1 via **EC2 Instance Connect** (botão **Connect** → aba **EC2 Instance Connect** → **Connect**).
 2. No terminal, rode para saturar a CPU:
    ```bash
    yes > /dev/null & yes > /dev/null & yes > /dev/null &
@@ -468,36 +468,7 @@ Se quiser pular o custo do Glue, dá pra ver o mesmo conceito com a Lambda do **
 
 ---
 
-## Lab 3.14 — Session Manager: acessar EC2 sem SSH 🟢
-
-> Pratica a [aula 3.6 — Monitoramento e Gestão](./3.6-monitoramento-gestao.md) (Systems Manager).
-
-**Cenário:** acessar a EC2 do Lab 3.1 **sem abrir porta 22 (SSH) e sem key pair**.
-
-### Pré-requisito
-A EC2 precisa ter a **role `AmazonSSMManagedInstanceCore`** anexada. Se não tiver:
-1. **IAM** → **Roles** → Create role → AWS service → EC2.
-2. Adicione policy `AmazonSSMManagedInstanceCore`. Nome: `EC2-SSM-Role`.
-3. EC2 → instância → **Actions** → **Security** → **Modify IAM role** → anexe.
-4. Reinicie a instância (ou aguarde ~5 min para o agente conectar).
-
-### Passos
-1. **Systems Manager** → **Session Manager** → **Start session**.
-2. Selecione a EC2 `web-lab-ec2` → **Start session**.
-3. Shell abre no navegador. Rode:
-   ```bash
-   whoami
-   curl http://localhost
-   sudo cat /var/log/cloud-init-output.log | tail -20
-   ```
-
-**Validação:** você está dentro da EC2 sem SSH, sem chave, sem porta 22.
-
-> 🟢 Session Manager é **gratuito**. **Bônus:** agora você pode **remover a regra SSH (22)** do `web-lab-sg` — segurança extra.
-
----
-
-## Lab 3.15 — Athena: SQL serverless sobre S3 🟢
+## Lab 3.13 — Athena: SQL serverless sobre S3 🟢
 
 > Pratica a [aula 3.9 — Analytics, IA e ML](./3.9-analytics-ia-ml.md).
 
@@ -545,7 +516,7 @@ A EC2 precisa ter a **role `AmazonSSMManagedInstanceCore`** anexada. Se não tiv
 
 ---
 
-## Lab 3.16 — Polly: texto vira fala 🟡
+## Lab 3.14 — Polly: texto vira fala 🟡
 
 > Pratica a [aula 3.9 — Analytics, IA e ML](./3.9-analytics-ia-ml.md) (IA pronta).
 
@@ -568,7 +539,7 @@ A EC2 precisa ter a **role `AmazonSSMManagedInstanceCore`** anexada. Se não tiv
 
 ---
 
-## Lab 3.17 — Step Functions: workflow visual 🟡
+## Lab 3.15 — Step Functions: workflow visual 🟡
 
 > Pratica a [aula 3.7 — Integração e Mensageria](./3.7-integracao-mensageria.md).
 
@@ -618,21 +589,6 @@ A EC2 precisa ter a **role `AmazonSSMManagedInstanceCore`** anexada. Se não tiv
 
 ---
 
-## Lab 3.13 — Auto Scaling Group + ELB (apenas conceitual)
-
-> ℹ️ **Não vamos criar** — apenas entenda o fluxo, que cai na prova:
->
-> 1. **Launch Template** define a "receita" da EC2 (AMI + tipo + user data + SG).
-> 2. **Auto Scaling Group (ASG)** mantém **N instâncias rodando** (mín / desejado / máx) baseado em métrica (ex.: CPU > 70%).
-> 3. **Application Load Balancer (ALB)** distribui tráfego HTTP entre as instâncias do ASG.
-> 4. Se uma instância falhar, ASG mata e cria outra automaticamente.
->
-> 🎯 **Frase para a prova:** *"Auto Scaling = elasticidade horizontal automática; ELB = distribuição de tráfego."*
->
-> 💡 Por que não fazer prático? ALB cobra **US$ 16/mês fixo**, mesmo sem tráfego. Não vale a pena para conta de estudo.
-
----
-
 ## Checklist Final do Módulo 3
 
 - [ ] Lab 3.1 — EC2 com web server (mantenha rodando)
@@ -647,11 +603,9 @@ A EC2 precisa ter a **role `AmazonSSMManagedInstanceCore`** anexada. Se não tiv
 - [ ] Lab 3.10 — CloudFront na frente do S3
 - [ ] Lab 3.11 — SNS → SQS fan-out
 - [ ] Lab 3.12 — CloudFormation stack
-- [ ] Lab 3.13 — Auto Scaling + ELB (conceitual)
-- [ ] Lab 3.14 — Session Manager (acessar EC2 sem SSH)
-- [ ] Lab 3.15 — Athena (SQL no S3)
-- [ ] Lab 3.16 — Polly (texto → fala)
-- [ ] Lab 3.17 — Step Functions (workflow visual)
+- [ ] Lab 3.13 — Athena (SQL no S3)
+- [ ] Lab 3.14 — Polly (texto → fala)
+- [ ] Lab 3.15 — Step Functions (workflow visual)
 
 ## Limpeza pós-laboratórios (CRÍTICO)
 
@@ -667,9 +621,8 @@ Para evitar custo inesperado, ao terminar **delete na ordem**:
 - [ ] **S3 bucket** do Lab 3.2 — empty + delete (após CloudFront sumir)
 - [ ] **CloudWatch Alarm** + **SNS topic alarms-lab** (Lab 3.6) — delete
 - [ ] **Glue job `glue-log-lab`** + log groups `/aws-glue/python-jobs/*` + role `GlueLabRole` (Lab 3.6 Parte D) — delete
-- [ ] **Step Functions state machine** + Lambdas (Lab 3.17) — delete
-- [ ] **Athena tabela e query results** (Lab 3.15) — delete a tabela e limpe a pasta `athena-results/` no S3
-- [ ] **IAM role** `EC2-SSM-Role` (Lab 3.14) — manter se for reutilizar; senão delete
+- [ ] **Step Functions state machine** + Lambdas (Lab 3.15) — delete
+- [ ] **Athena tabela e query results** (Lab 3.13) — delete a tabela e limpe a pasta `athena-results/` no S3
 > ℹ️ Labs 3.4 (Default VPC), 3.5 (DynamoDB) e 3.9 (RDS) são **conceituais** — sem recursos para limpar.
 
 > 💰 No dia seguinte, confira **Billing → Free Tier** para ter certeza de que nada está cobrando.
