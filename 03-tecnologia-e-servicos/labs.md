@@ -216,10 +216,11 @@
 
 ### Parte B — Prática (use a EC2 do Lab 3.1)
 1. **CloudWatch** → **Alarms** → **Create alarm** → **Select metric** → **EC2** → **Per-Instance Metrics** → instância `web-lab-ec2` → métrica `CPUUtilization`.
-2. **Threshold:** Static, Greater than `70`. Period: 5 min.
-3. **Notification:** Create new SNS topic `alarms-lab` → inscreva seu e-mail.
-4. **Confirme** a inscrição no e-mail recebido (link "Confirm subscription").
-5. **Alarm name:** `cpu-alarm-lab`.
+2. **Antes de criar o alarme**, ative **Detailed monitoring** na EC2 para permitir period de 1 min: EC2 → instância `web-lab-ec2` → **Actions** → **Monitor and troubleshoot** → **Manage detailed monitoring** → **Enable**.
+3. **Threshold:** Static, Greater than `50`. **Period: 1 minuto** (o **mínimo possível** para métrica de EC2). **Datapoints to alarm: 1 of 1** — dispara no primeiro ponto acima de 50%.
+4. **Notification:** Create new SNS topic `alarms-lab` → inscreva seu e-mail.
+5. **Confirme** a inscrição no e-mail recebido (link "Confirm subscription").
+6. **Alarm name:** `cpu-alarm-lab`.
 
 **Validação:** alarme criado com estado `Insufficient data` ou `OK`. Confirme inscrição SNS.
 
@@ -232,7 +233,7 @@
    ```
    - `yes` imprime "y" infinitamente (queima CPU); `> /dev/null` descarta a saída; `&` joga em background → 3 processos paralelos levam a `t2/t3.micro` a ~100%.
 3. (opcional) Confirme com `top` — você vê 3 processos `yes` no topo. Aperte `q` pra sair.
-4. Aguarde ~5 min → alarme muda para **In alarm** e você recebe **e-mail do SNS**.
+4. Aguarde ~1-2 min → alarme muda para **In alarm** e você recebe **e-mail do SNS**.
 5. Mate os processos:
    ```bash
    pkill yes
