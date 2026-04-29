@@ -396,79 +396,130 @@ Se quiser pular o custo do Glue, dá pra ver o mesmo conceito com a Lambda do **
 
 > Pratica a [aula 3.5 — Rede](./3.5-rede.md) (CDN).
 
-1. **CloudFront** → **Create distribution**.
-2. **Origin domain:** selecione o bucket do Lab 3.2 (formato `bucket.s3.amazonaws.com`, não o endpoint de website).
-3. **Origin access:** **Origin access control settings (recommended)** → **Create new OAC**.
-4. **Viewer protocol policy:** Redirect HTTP to HTTPS.
-5. **Default root object:** `index.html`.
-6. **Create distribution**.
-7. CloudFront vai pedir para você **atualizar a bucket policy** → copie o JSON sugerido e cole na bucket policy do S3 (substitui o do Lab 3.2).
-8. Aguarde ~5 min para o status virar **Deployed**.
+**Cenário:** colocar uma CDN global na frente do site estático do Lab 3.2 para servir com **HTTPS (cadeado)** e cache nas edge locations.
 
-**Validação:** acesse `https://<distribution-id>.cloudfront.net` → vê o site do Lab 3.2 servido com HTTPS pela CDN.
-
-### 🧹 Limpeza
-- **CloudFront** → distribution → **Disable** (aguarda 15 min) → **Delete**.
-
-> 🟡 1 TB de egress + 10M requests grátis/mês **sempre** (não é só 12 meses).
-
----
-
-## Lab 3.11 — SQS + SNS fan-out 🟡
-
-> Pratica a [aula 3.7 — Integração e Mensageria](./3.7-integracao-mensageria.md).
+> ℹ️ O console novo do CloudFront usa um wizard de **5 passos com escolha de plano**. Para o lab usamos o plano **Free** ($0).
 
 ### Passos
 
-1. **SQS** → **Create queue** → tipo **Standard** → nome `lab-queue` → **Create**.
-2. **SNS** → **Topics** → **Create topic** → tipo **Standard** → nome `lab-topic` → **Create**.
-3. No SNS topic → **Create subscription** → Protocol **Amazon SQS** → escolha `lab-queue` → **Create**.
-4. No tópico SNS → **Publish message** → body: `Mensagem teste fan-out` → **Publish**.
-5. Volte ao **SQS** → `lab-queue` → **Send and receive messages** → **Poll for messages**.
+**Step 1 — Choose a plan**
+1. **CloudFront** → **Create distribution**.
+2. Selecione o plano **Free** ($0/month) → **Next**.
+   - Inclui: Global CDN, DDoS protection, TLS certificate, WAF básico, 1 M requests + 100 GB/mês.
 
-**Validação:** a mensagem aparece na fila SQS — chegou via SNS → SQS (fan-out).
+**Step 2 — Get started**
+3. **Distribution name:** `web-lab-cloud-front`.
+4. **Distribution type:** **Single website or app**.
+5. **Route 53 managed domain:** deixe em branco (vamos usar o domínio `cloudfront.net` que a AWS dá de graça).
+6. **Next**.
+
+**Step 3 — Specify origin**
+7. **Origin type:** **Amazon S3**.
+8. **S3 origin:** clique em **Browse S3** → selecione o bucket do Lab 3.2.
+9. ⚠️ Vai aparecer o aviso: *"This S3 bucket has static web hosting enabled… Use website endpoint"* → **NÃO clique** em "Use website endpoint". Deixe o **bucket endpoint** (`bucket.s3.region.amazonaws.com`).
+   - **Por quê?** O website endpoint é HTTP-only e público. Usando o REST endpoint, o CloudFront pode fechar o bucket (OAC) e ainda servir como site.
+10. **Allow private S3 bucket access to CloudFront:** ✅ **marque** (Recommended). Isso é o **OAC** — CloudFront vai atualizar a bucket policy automaticamente para que só ele acesse o bucket.
+11. **Origin settings:** **Use recommended origin settings**.
+12. **Next**.
+
+**Step 4 — Enable security**
+13. **WAF:** já vem incluso no Free, deixe ativo.
+14. **Use monitor mode:** desmarcado (em produção você ligaria para auditar antes de bloquear).
+15. **Next**.
+
+**Step 5 — Review and create**
+16. Revise e clique **Create distribution**.
+17. Após criar, vá em **General → Settings → Edit** → **Default root object:** `index.html` → **Save**.
+    - Sem isso, acessar `https://xxx.cloudfront.net/` retorna erro — o CloudFront não sabe qual arquivo servir na raiz.
+18. Aguarde ~5 min até o **Status: Deployed**.
+
+### Validação
+- Copie o **Distribution domain name** (ex: `d1a2b3c4.cloudfront.net`).
+- Acesse `https://d1a2b3c4.cloudfront.net` no navegador.
+- ✅ Site do Lab 3.2 carrega **com cadeado** 🔒.
+- ✅ Tente `http://...` → redireciona para `https://` automaticamente.
+- ✅ Tente acessar o bucket direto pelo endpoint S3 → agora dá **403 Access Denied** (OAC fechou).
 
 ### 🧹 Limpeza
-- Delete a subscription, o topic SNS e a queue SQS.
+1. **CloudFront** → distribution → **Disable** → confirme.
+2. Aguarde ~15 min até `Last modified` parar de atualizar e status virar **Disabled**.
+3. **Delete**.
 
-> 🟡 1M de requests SQS + 1M publicações SNS grátis/mês por 12 meses.
+> 🟢 Plano **Free**: 1 M requests + 100 GB/mês para sempre (não é só 12 meses). Bloqueios DDoS e WAF não contam na franquia. Tráfego entre S3 e CloudFront é **isento**.
 
 ---
 
-## Lab 3.12 — CloudFormation: stack com S3 🟢
+## Lab 3.11 — CloudFormation: stack com S3 🟢
 
-> Pratica a [aula 3.8 — Ferramentas de Desenvolvedor](./3.8-ferramentas-desenvolvedor.md) (IaC).
+> Pratica a [aula 3.8 — Ferramentas de Desenvolvedor](./3.8-ferramentas-desenvolvedor.md) (IaC — Infraestrutura como Código).
 
-1. **CloudFormation** → **Create stack** → **With new resources (standard)** → **Choose an existing template** → **Create template in Infrastructure Composer** ou cole o YAML abaixo em **Template source: Upload a template file**:
+**Cenário:** criar um bucket S3 via **template YAML** em vez do console. Mostra a essência do CloudFormation: você descreve, ele provisiona.
 
-   ```yaml
-   AWSTemplateFormatVersion: '2010-09-09'
-   Description: Lab 3.12 - bucket simples via IaC
-   Resources:
-     LabBucket:
-       Type: AWS::S3::Bucket
-       Properties:
-         BucketName: !Sub 'cfn-lab-${AWS::AccountId}-${AWS::Region}'
-         VersioningConfiguration:
-           Status: Enabled
-   Outputs:
-     BucketName:
-       Value: !Ref LabBucket
-   ```
+### Pré-requisito — salve o template localmente
 
-2. **Stack name:** `lab-iac-stack`. Sem parâmetros. Sem capabilities. Próximo, próximo, **Submit**.
-3. Aguarde status **CREATE_COMPLETE**.
+Crie o arquivo `lab-iac.yaml` no seu computador com este conteúdo:
 
-**Validação:** aba **Outputs** mostra o nome do bucket criado. Vá no S3 e confirme.
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lab 3.11 - bucket simples via IaC
+Resources:
+  LabBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'cfn-lab-${AWS::AccountId}-${AWS::Region}'
+      VersioningConfiguration:
+        Status: Enabled
+Outputs:
+  BucketName:
+    Value: !Ref LabBucket
+```
+
+> 💡 `!Sub` injeta variáveis (account ID + região) para garantir nome único globalmente.
+
+### Passos (wizard de 4 steps)
+
+**Step 1 — Create stack**
+1. **CloudFormation** → **Create stack**.
+2. **Prepare template:** **Choose an existing template**.
+3. **Template source:** **Upload a template file** → **Choose file** → selecione o `lab-iac.yaml`.
+4. **Next**.
+
+**Step 2 — Specify stack details**
+5. **Stack name:** `lab-iac-stack` (apenas letras, números e hífen).
+6. **Parameters:** o template não tem parâmetros — vai aparecer *"No parameters"*.
+7. **Next**.
+
+**Step 3 — Configure stack options**
+8. **Tags** (opcional): pule.
+9. **Permissions → IAM role:** deixe **em branco** — CloudFormation usa as suas credenciais.
+10. **Stack failure options:** mantenha **Roll back all stack resources** (default). Se algo falhar, ele desfaz tudo.
+11. **Delete newly created resources during a rollback:** mantenha **Use deletion policy** (default).
+12. **Next**.
+
+**Step 4 — Review and create**
+13. Revise. No final marque ✅ *"I acknowledge..."* se aparecer (não deve aparecer aqui — só pede quando o template cria IAM).
+14. **Submit**.
+
+### Acompanhar a criação
+- A stack abre na aba **Events** mostrando cada recurso sendo criado em ordem (`CREATE_IN_PROGRESS` → `CREATE_COMPLETE`).
+- Aguarde o status final **CREATE_COMPLETE** (~30 s para esse template).
+
+### Validação
+- Aba **Outputs** → veja o `BucketName` (ex: `cfn-lab-123456789012-us-east-2`).
+- Vá em **S3** → confirme o bucket existe.
+- Aba **Resources** mostra todos os recursos da stack (aqui só `LabBucket`).
 
 ### 🧹 Limpeza
-- **CloudFormation** → stack → **Delete** → confirme. O bucket é removido junto.
+- **CloudFormation** → stack → **Delete** → confirme.
+- ✅ O bucket é apagado **junto** com a stack — não precisa esvaziá-lo no S3 (porque o template não tem objetos dentro).
 
-> 🟢 CloudFormation é **grátis** — você só paga pelos recursos criados pelo template.
+> 🟢 CloudFormation é **grátis** — você paga só pelos recursos provisionados.
+
+> 🎯 **Frase para a prova:** *"CloudFormation = IaC nativa da AWS. Você descreve em YAML/JSON, ele provisiona, atualiza e destrói tudo de forma idempotente."*
 
 ---
 
-## Lab 3.13 — Athena: SQL serverless sobre S3 🟢
+## Lab 3.12 — Athena: SQL serverless sobre S3 🟢
 
 > Pratica a [aula 3.9 — Analytics, IA e ML](./3.9-analytics-ia-ml.md).
 
@@ -516,7 +567,7 @@ Se quiser pular o custo do Glue, dá pra ver o mesmo conceito com a Lambda do **
 
 ---
 
-## Lab 3.14 — Polly: texto vira fala 🟡
+## Lab 3.13 — Polly: texto vira fala 🟡
 
 > Pratica a [aula 3.9 — Analytics, IA e ML](./3.9-analytics-ia-ml.md) (IA pronta).
 
@@ -539,7 +590,7 @@ Se quiser pular o custo do Glue, dá pra ver o mesmo conceito com a Lambda do **
 
 ---
 
-## Lab 3.15 — Step Functions: workflow visual 🟡
+## Lab 3.14 — Step Functions: workflow visual 🟡
 
 > Pratica a [aula 3.7 — Integração e Mensageria](./3.7-integracao-mensageria.md).
 
@@ -601,11 +652,10 @@ Se quiser pular o custo do Glue, dá pra ver o mesmo conceito com a Lambda do **
 - [ ] Lab 3.8 — S3 lifecycle rule
 - [ ] Lab 3.9 — RDS (tour conceitual)
 - [ ] Lab 3.10 — CloudFront na frente do S3
-- [ ] Lab 3.11 — SNS → SQS fan-out
-- [ ] Lab 3.12 — CloudFormation stack
-- [ ] Lab 3.13 — Athena (SQL no S3)
-- [ ] Lab 3.14 — Polly (texto → fala)
-- [ ] Lab 3.15 — Step Functions (workflow visual)
+- [ ] Lab 3.11 — CloudFormation stack
+- [ ] Lab 3.12 — Athena (SQL no S3)
+- [ ] Lab 3.13 — Polly (texto → fala)
+- [ ] Lab 3.14 — Step Functions (workflow visual)
 
 ## Limpeza pós-laboratórios (CRÍTICO)
 
@@ -616,13 +666,12 @@ Para evitar custo inesperado, ao terminar **delete na ordem**:
 - [ ] **EC2** `web-lab-ec2` (Lab 3.1) — Terminate
 - [ ] **EBS volumes não anexados** (Lab 3.7) — delete
 - [ ] **EBS snapshots** (Lab 3.7) — delete
-- [ ] **CloudFormation** stack (Lab 3.12) — delete (remove bucket junto)
-- [ ] **SQS queue + SNS topic** (Lab 3.11) — delete
+- [ ] **CloudFormation** stack (Lab 3.11) — delete (remove bucket junto)
 - [ ] **S3 bucket** do Lab 3.2 — empty + delete (após CloudFront sumir)
 - [ ] **CloudWatch Alarm** + **SNS topic alarms-lab** (Lab 3.6) — delete
 - [ ] **Glue job `glue-log-lab`** + log groups `/aws-glue/python-jobs/*` + role `GlueLabRole` (Lab 3.6 Parte D) — delete
-- [ ] **Step Functions state machine** + Lambdas (Lab 3.15) — delete
-- [ ] **Athena tabela e query results** (Lab 3.13) — delete a tabela e limpe a pasta `athena-results/` no S3
+- [ ] **Step Functions state machine** + Lambdas (Lab 3.14) — delete
+- [ ] **Athena tabela e query results** (Lab 3.12) — delete a tabela e limpe a pasta `athena-results/` no S3
 > ℹ️ Labs 3.4 (Default VPC), 3.5 (DynamoDB) e 3.9 (RDS) são **conceituais** — sem recursos para limpar.
 
 > 💰 No dia seguinte, confira **Billing → Free Tier** para ter certeza de que nada está cobrando.
