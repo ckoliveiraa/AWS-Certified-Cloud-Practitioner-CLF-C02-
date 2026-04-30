@@ -613,25 +613,86 @@ Outputs:
 
 2. **Step Functions** → **Create state machine** → **Design your workflow visually** → **Standard**.
 
-3. No **Workflow Studio**:
-   - Arraste **Lambda Invoke** → selecione `validate-order`.
-   - Arraste **Choice** após o primeiro Lambda.
-   - Configure: se `$.Payload.valid == true` → próximo bloco; senão → **Fail**.
-   - No "true": arraste outro **Lambda Invoke** → `process-order`.
-   - No "false": arraste **Fail** state com motivo "Pedido inválido".
+3. No **Workflow Studio** (esquerda → painel **Actions / Flow**), monte o fluxograma:
+   - **Actions** → arraste **Lambda Invoke** para o canvas. No painel direito, em **Function name**, selecione `validate-order`. ⚠️ **Não esqueça** — sem isso o ARN fica vazio e a execução falha.
+   - **Flow** → arraste um **Choice** abaixo do Lambda. O Choice nasce com **uma saída por Rule** + **uma Default**; arraste os próximos blocos para os "+" das saídas.
+   - **Flow** → arraste um **Pass** no "+" do **Rule #1** → renomeie para `Aprovado`.
+   - **Flow** → arraste um **Fail** no "+" do **Default** → renomeie para `Rejeitado` e preencha **Error:** `PedidoInvalido`, **Cause:** `Valor menor ou igual a 100`.
+   - **Actions** → arraste outro **Lambda Invoke** abaixo do `Aprovado` → selecione `process-order`.
 
-4. **Name:** `order-workflow`. Permissões: criar nova role.
-5. **Create state machine**.
+4. **Configurar o bloco Choice** (clique nele):
+   - O console novo já vem com **State query language: JSONata** (mantenha — é o default).
+   - Em **Choice Rules** → lápis do **Rule #1** → **Condition** → cole:
+     ```
+     {% $states.input.valid = true %}
+     ```
+     - `{% ... %}` marca expressão JSONata.
+     - `$states.input` é o que entrou no Choice (vem do `Output` do Lambda anterior, que mapeia `$states.result.Payload`).
+     - `=` (um sinal só) é igualdade em JSONata, **não `==`**.
+   - **Then next state is:** `Aprovado` → **Save conditions**.
+   - **Default rule** já aponta para `Rejeitado` automaticamente.
 
-6. **Start execution** com:
-   ```json
-   { "valor": 200 }
+   > 💡 **O que vai dentro do Choice:** o `Rule #1` carrega **condição** + **destino se verdadeira**. A **Default rule** é o `else`. Se a condição bater, segue para `Aprovado`; senão, vai para `Rejeitado`.
+
+5. **Name:** `order-workflow`. Permissões: **Create new role**.
+6. **Create state machine**.
+
+### Definição final (referência — confira em Definition)
+
+```json
+{
+  "Comment": "Lab 3.14 - Step Functions com Choice",
+  "QueryLanguage": "JSONata",
+  "StartAt": "Lambda Invoke",
+  "States": {
+    "Lambda Invoke": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Output": "{% $states.result.Payload %}",
+      "Arguments": {
+        "FunctionName": "arn:aws:lambda:<region>:<account-id>:function:validate-order:$LATEST",
+        "Payload": "{% $states.input %}"
+      },
+      "Next": "Choice"
+    },
+    "Choice": {
+      "Type": "Choice",
+      "Choices": [
+        { "Condition": "{% $states.input.valid = true %}", "Next": "Aprovado" }
+      ],
+      "Default": "Rejeitado"
+    },
+    "Aprovado": { "Type": "Pass", "Next": "process order" },
+    "process order": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Output": "{% $states.result.Payload %}",
+      "Arguments": {
+        "FunctionName": "arn:aws:lambda:<region>:<account-id>:function:process-order:$LATEST",
+        "Payload": "{% $states.input %}"
+      },
+      "End": true
+    },
+    "Rejeitado": {
+      "Type": "Fail",
+      "Error": "PedidoInvalido",
+      "Cause": "Valor menor ou igual a 100"
+    }
+  }
+}
+```
+
+### Testes
+
+7. **Start execution** com `{ "valor": 200 }` → fluxo: `validate-order → Choice → Aprovado → process-order` → ✅ **Succeeded**.
+8. **Start execution** com `{ "valor": 50 }` → fluxo: `validate-order → Choice (default) → Rejeitado` → ❌ **Failed** com:
    ```
-   Veja o fluxo passar pelos dois Lambdas no diagrama animado.
+   Error: PedidoInvalido
+   Cause: Valor menor ou igual a 100
+   ```
+   > ℹ️ **"Failed" é proposital** — Fail state encerra a execução marcando-a como falha para downstream (CloudWatch, EventBridge). Não é erro do workflow, é regra de negócio.
 
-7. Teste com `{ "valor": 50 }` → deve cair em **Fail**.
-
-**Validação:** dois execuções no histórico, uma com sucesso e outra falhada, com diagrama visual mostrando o caminho.
+**Validação:** duas execuções no histórico — uma **Succeeded** (caminho verde) e uma **Failed** (caminho vermelho) com o diagrama animado mostrando cada caminho.
 
 ### 🧹 Limpeza
 - Delete a state machine + os 2 Lambdas + as roles geradas.
