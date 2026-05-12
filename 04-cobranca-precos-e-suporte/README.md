@@ -47,7 +47,7 @@ Este módulo cobre modelos de preço, ferramentas de faturamento, planos de supo
 
 ## Recursos Complementares
 
-- [Laboratórios práticos](./labs.md)
+- [Homework prático](./homework.md)
 - [Glossário](./glossario.md)
 - [Flashcards](./flashcards.md)
 - [Simulado — Domínio 4](./simulado.md)
