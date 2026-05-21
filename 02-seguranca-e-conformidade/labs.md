@@ -177,43 +177,6 @@
 
 ---
 
-## Lab 2.9 — CloudWatch Logs + Alarm 🟡
-
-> Pratica a [aula 2.7 — Auditoria](./2.7-auditoria-conformidade.md) — diferença entre log de aplicação (CloudWatch) e log de API (CloudTrail).
-
-### Parte A — Criar Log Group e Log Stream
-1. **CloudWatch** → **Log groups** → **Create log group** → nome `/learning/app` → **Create**.
-2. Clique no nome `/learning/app` para entrar nele → **Create log stream** → nome `test-stream` → **Create**.
-
-### Parte B — Inserir um log event (precisa de CLI)
-> ⚠️ O console do CloudWatch **não permite** inserir log events manualmente — só leitura. Use **CloudShell** (ícone `>_` no topo do console, já autenticado) ou AWS CLI local:
-
-```bash
-aws logs put-log-events \
-  --log-group-name /learning/app \
-  --log-stream-name test-stream \
-  --log-events timestamp=$(date +%s000),message="Erro fake na app"
-```
-
-> 💡 **Conta nova?** O CloudShell pode ficar indisponível por até 48h enquanto a AWS verifica a conta. Alternativas: instalar AWS CLI local (https://aws.amazon.com/cli/) ou pular essa parte e seguir para o alarme.
-
-Volte ao log stream no console — a mensagem aparece listada.
-
-### Parte C — Alarmes (apenas conceitual, não vamos criar)
-
-> ℹ️ Para a prova, basta entender **como o fluxo funciona**, sem precisar configurar:
->
-> 1. **CloudWatch Alarm** monitora uma métrica (ex.: `CPUUtilization > 80%`).
-> 2. Quando a métrica passa do threshold, o alarme **muda de estado** (`OK → In alarm`).
-> 3. O alarme dispara uma **ação** — o mais comum é publicar num **SNS topic**.
-> 4. **SNS** entrega a notificação para os inscritos (e-mail, SMS, Lambda, fila SQS).
->
-> 🎯 **Frase para a prova:** *"CloudWatch Alarm + SNS = notificação automática quando métrica passa do limite."*
-
-> 🟡 10 métricas customizadas e 5 GB de logs grátis/mês por 12 meses.
-
----
-
 ## Lab 2.10 — AWS Config (audita mudanças) 🔴
 
 > Pratica a [aula 2.7 — Auditoria](./2.7-auditoria-conformidade.md). **Atenção:** Config cobra por item gravado.
@@ -318,7 +281,6 @@ Para não acumular custo:
 - [ ] Lab 2.6 — Parameter Store + Secrets Manager comparados
 - [ ] Lab 2.7 — Stateful (SG) vs Stateless (NACL) na prática
 - [ ] Lab 2.8 — CloudTrail capturando management events
-- [ ] Lab 2.9 — CloudWatch Logs + Alarm com SNS
 - [ ] Lab 2.10 — Config detectando bucket público
 - [ ] Lab 2.11 — GuardDuty com sample findings
 - [ ] Lab 2.12 — Trusted Advisor 6 checks grátis
@@ -333,8 +295,6 @@ Para evitar custo inesperado, ao terminar:
 - [ ] **Delete** secret do Secrets Manager (Lab 2.6)
 - [ ] **Stop recording** no AWS Config (Lab 2.10)
 - [ ] **Disable** GuardDuty (Lab 2.11)
-- [ ] **Delete** alarm e log group do CloudWatch se não for usar (Lab 2.9)
-
 ---
 
 [← Voltar ao módulo](./README.md)
