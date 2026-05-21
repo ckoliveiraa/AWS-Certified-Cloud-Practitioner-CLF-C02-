@@ -16,6 +16,7 @@ Esta pasta contém a versão **interativa** do simulado final, publicável via *
 
 - 70 questões, uma por tela (assistente passo a passo)
 - Questões **e** alternativas embaralhadas a cada tentativa
+- Cronômetro de 90 min (fica vermelho nos últimos 5 min; finaliza sozinho ao zerar)
 - Barra de progresso + contador de respondidas
 - Navegação anterior/próxima
 - Nota final em escala /1000 (corte 700 = 70%)
