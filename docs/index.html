@@ -1,232 +1,330 @@
-<!doctype html>
-<html lang="pt-BR">
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Simulado Final — AWS CLF-C02</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulado Final — AWS Cloud Practitioner (CLF-C02)</title>
 <style>
-  :root{--bg:#0f172a;--card:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#ff9900;--ok:#22c55e;--err:#ef4444;--border:#334155;}
-  *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
-  header{background:linear-gradient(135deg,#232f3e,#ff9900);padding:2rem 1rem;text-align:center}
-  header h1{margin:0;font-size:1.8rem}
-  header p{margin:.5rem 0 0;color:#fff;opacity:.9}
-  main{max-width:880px;margin:0 auto;padding:1.5rem 1rem 4rem}
-  .meta{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin:1rem 0 2rem}
-  .badge{background:var(--card);border:1px solid var(--border);border-radius:999px;padding:.4rem 1rem;font-size:.9rem;color:var(--muted)}
-  .timer{background:var(--accent);color:#000;font-weight:700}
-  .domain{margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent);color:var(--accent);font-size:1.2rem}
-  .q{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.2rem;margin-bottom:1rem;transition:border-color .2s}
-  .q.answered{border-color:var(--accent)}
-  .q-title{font-weight:600;margin-bottom:.8rem}
-  .q-num{color:var(--accent);margin-right:.4rem}
-  .opt{display:block;padding:.6rem .9rem;margin:.35rem 0;border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .15s}
-  .opt:hover{border-color:var(--accent);background:#0f172a}
-  .opt input{margin-right:.6rem}
-  .opt.correct{border-color:var(--ok);background:rgba(34,197,94,.1)}
-  .opt.wrong{border-color:var(--err);background:rgba(239,68,68,.1)}
-  .expl{margin-top:.8rem;padding:.7rem;background:#0f172a;border-left:3px solid var(--accent);border-radius:4px;font-size:.9rem;color:var(--muted);display:none}
-  .expl.show{display:block}
-  .actions{position:sticky;bottom:1rem;display:flex;gap:.8rem;justify-content:center;margin-top:2rem;flex-wrap:wrap}
-  button{background:var(--accent);color:#000;border:0;padding:.9rem 2rem;border-radius:8px;font-weight:700;font-size:1rem;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.4)}
-  button:hover{filter:brightness(1.1)}
-  button.secondary{background:var(--card);color:var(--text);border:1px solid var(--border)}
-  #progress{position:fixed;top:0;left:0;height:4px;background:var(--accent);width:0;transition:width .2s;z-index:100}
-  #result{background:var(--card);border:2px solid var(--accent);border-radius:12px;padding:2rem;text-align:center;margin:2rem 0;display:none}
-  #result.show{display:block}
-  #result h2{margin:0 0 1rem;color:var(--accent)}
-  .score{font-size:3rem;font-weight:800;margin:1rem 0}
-  .score.pass{color:var(--ok)}
-  .score.fail{color:var(--err)}
-  .bars{display:grid;grid-template-columns:1fr;gap:.6rem;margin:1.5rem 0;text-align:left}
-  .bar{background:#0f172a;border-radius:6px;padding:.6rem .9rem;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border)}
-  footer{text-align:center;color:var(--muted);padding:2rem 1rem;font-size:.85rem}
-  footer a{color:var(--accent)}
+  :root{
+    --laranja:#ff9900; --navy:#232f3e; --navy-esc:#161e2d; --verde:#1d8102; --vermelho:#d13212;
+    --bg:#f2f3f3; --card:#ffffff; --texto:#16191f; --cinza:#5f6b7a; --borda:#e3e6e8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Amazon Ember','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--bg);
+    color:var(--texto);line-height:1.5;padding:16px}
+  .wrap{max-width:760px;margin:0 auto}
+  header{text-align:center;padding:24px 0}
+  header h1{font-size:1.5rem;color:var(--navy)}
+  header p{color:var(--cinza);font-size:.95rem;margin-top:4px}
+  .card{background:var(--card);border:1px solid var(--borda);border-radius:8px;
+    padding:24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .btn{background:var(--laranja);color:var(--navy-esc);border:none;padding:12px 24px;border-radius:4px;
+    font-size:1rem;cursor:pointer;font-weight:700}
+  .btn:hover{filter:brightness(.95)}
+  .btn:disabled{background:#c8c8c8;color:#666;cursor:not-allowed}
+  .btn-sec{background:#fff;color:var(--navy);border:1px solid var(--navy)}
+  .btn-sec:hover{background:#f0f2f4}
+  .hidden{display:none}
+  ul.info{list-style:none;margin:16px 0}
+  ul.info li{padding:4px 0;color:var(--cinza)}
+  ul.info li b{color:var(--texto)}
+  .bar{height:8px;background:var(--borda);border-radius:4px;overflow:hidden;margin-bottom:8px}
+  .bar > div{height:100%;background:var(--laranja);transition:width .3s}
+  .meta{display:flex;justify-content:space-between;font-size:.85rem;color:var(--cinza);margin-bottom:16px}
+  .tag{display:inline-block;background:#fff3e0;color:#995c00;font-size:.72rem;
+    font-weight:600;padding:2px 8px;border-radius:10px;margin-bottom:10px}
+  .pergunta{font-size:1.08rem;font-weight:600;margin-bottom:16px}
+  .opt{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--borda);
+    border-radius:6px;padding:12px 14px;margin-bottom:8px;cursor:pointer;font-size:.97rem;
+    transition:border-color .15s,background .15s}
+  .opt:hover{border-color:var(--laranja)}
+  .opt.sel{border-color:var(--laranja);background:#fff8ef}
+  .opt.certa{border-color:var(--verde);background:#eef7ee}
+  .opt.errada{border-color:var(--vermelho);background:#fbeeee}
+  .opt .letra{font-weight:700;margin-right:8px}
+  .nav{display:flex;justify-content:space-between;gap:8px;margin-top:16px}
+  .resultado{text-align:center}
+  .nota{font-size:3rem;font-weight:700;margin:8px 0}
+  .nota.ok{color:var(--verde)} .nota.fail{color:var(--vermelho)}
+  .selo{font-size:1.1rem;font-weight:600;margin-bottom:8px}
+  .dominios{margin:16px 0;text-align:left}
+  .dlinha{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--borda);font-size:.92rem}
+  .rev-item{border-left:4px solid var(--borda);padding:10px 14px;margin-bottom:10px;background:#fafafa;border-radius:0 6px 6px 0}
+  .rev-item.ok{border-color:var(--verde)} .rev-item.fail{border-color:var(--vermelho)}
+  .rev-q{font-weight:600;margin-bottom:6px;font-size:.95rem}
+  .rev-a{font-size:.88rem;margin:2px 0}
+  .rev-a.c{color:var(--verde)} .rev-a.e{color:var(--vermelho)}
+  .exp{font-size:.86rem;color:var(--cinza);margin-top:6px;font-style:italic}
+  footer{text-align:center;color:var(--cinza);font-size:.8rem;padding:24px 0}
+  footer a{color:#995c00}
 </style>
 </head>
 <body>
-<div id="progress"></div>
-<header>
-  <h1>Simulado Final — AWS Cloud Practitioner</h1>
-  <p>CLF-C02 · 65 questões · 90 minutos · Meta: ≥ 70%</p>
-</header>
-<main>
-  <div class="meta">
-    <span class="badge">Domínio 1: 15q</span>
-    <span class="badge">Domínio 2: 20q</span>
-    <span class="badge">Domínio 3: 22q</span>
-    <span class="badge">Domínio 4: 8q</span>
-    <span class="badge timer" id="timer">⏱ 90:00</span>
+<div class="wrap">
+  <header>
+    <h1>Simulado Final — CLF-C02</h1>
+    <p>AWS Certified Cloud Practitioner</p>
+  </header>
+
+  <!-- TELA INICIAL -->
+  <div id="inicio" class="card">
+    <p>Este simulado reúne <b>70 questões</b> no estilo do exame oficial, cobrindo os 4 domínios do CLF-C02.</p>
+    <ul class="info">
+      <li><b>Questões:</b> 70 (embaralhadas a cada tentativa)</li>
+      <li><b>Aprovação:</b> 70% — equivale à nota de corte <b>700/1000</b></li>
+      <li><b>Formato:</b> uma resposta correta por questão</li>
+      <li><b>Ao final:</b> nota, desempenho por domínio e revisão comentada</li>
+    </ul>
+    <button class="btn" onclick="iniciar()">Começar simulado</button>
   </div>
-  <form id="quiz"></form>
-  <div id="result"></div>
-  <div class="actions">
-    <button type="button" id="submit">Finalizar e Corrigir</button>
-    <button type="button" class="secondary" id="reset">Reiniciar</button>
+
+  <!-- TELA DO QUIZ -->
+  <div id="quiz" class="card hidden">
+    <div class="bar"><div id="progresso"></div></div>
+    <div class="meta">
+      <span id="contador"></span>
+      <span id="dominioLabel"></span>
+    </div>
+    <span class="tag" id="tagDominio"></span>
+    <div class="pergunta" id="textoPergunta"></div>
+    <div id="opcoes"></div>
+    <div class="nav">
+      <button class="btn btn-sec" id="btnVoltar" onclick="voltar()">← Anterior</button>
+      <button class="btn" id="btnAvancar" onclick="avancar()">Próxima →</button>
+    </div>
   </div>
-</main>
-<footer>
-  Material educacional — <a href="https://github.com/" target="_blank">curso CLF-C02</a> ·
-  <a href="https://aws.amazon.com/pt/certification/certified-cloud-practitioner/" target="_blank">Certificação oficial</a>
-</footer>
+
+  <!-- TELA DE RESULTADO -->
+  <div id="resultado" class="card hidden resultado">
+    <div class="selo" id="selo"></div>
+    <div class="nota" id="notaTexto"></div>
+    <p id="acertosTexto" style="color:var(--cinza)"></p>
+    <div class="dominios" id="dominios"></div>
+    <div class="nav">
+      <button class="btn btn-sec" onclick="toggleRevisao()">Ver revisão comentada</button>
+      <button class="btn" onclick="reiniciar()">Refazer simulado</button>
+    </div>
+  </div>
+
+  <!-- REVISÃO -->
+  <div id="revisao" class="card hidden"></div>
+
+  <footer>
+    Material educacional — <a href="https://github.com/ckoliveiraa/AWS-Certified-Cloud-Practitioner-CLF-C02-">Curso CLF-C02 no GitHub</a> ·
+    <a href="https://aws.amazon.com/pt/certification/certified-cloud-practitioner/">Certificação oficial</a>
+  </footer>
+</div>
 
 <script>
-const QUESTIONS = [
-  // Domínio 1
-  {d:1,q:"Qual benefício permite escalar para cima e para baixo automaticamente?",o:["Agilidade","Elasticidade","Durabilidade","Redundância"],a:1,e:"Elasticidade é a capacidade de ajustar recursos conforme a demanda."},
-  {d:1,q:"Qual dos 6 pilares do Well-Architected foi adicionado em 2021?",o:["Segurança","Confiabilidade","Sustentabilidade","Performance"],a:2,e:"Sustentabilidade é o pilar mais recente do WAF."},
-  {d:1,q:"Rehost também é conhecido como:",o:["Lift-and-shift","Refactor","Repurchase","Retain"],a:0,e:"Rehost = lift-and-shift, migração sem alterações."},
-  {d:1,q:"Qual modelo tem serviço completo (como o WorkMail)?",o:["IaaS","PaaS","SaaS","FaaS"],a:2,e:"SaaS entrega o software pronto ao usuário."},
-  {d:1,q:"Nuvem híbrida combina:",o:["2 regiões","AWS + outra cloud","Pública + on-premises","Múltiplas contas"],a:2,e:"Híbrida = nuvem pública + infraestrutura privada/on-premises."},
-  {d:1,q:"Qual NÃO é benefício da nuvem segundo a AWS?",o:["Troca CapEx por OpEx","Global em minutos","Zero responsabilidade de segurança","Economias de escala"],a:2,e:"Segurança é responsabilidade compartilhada, nunca zero."},
-  {d:1,q:"Qual perspectiva do CAF trata de cultura e pessoas?",o:["Governança","Pessoas","Operações","Negócio"],a:1,e:"A perspectiva 'Pessoas' foca em cultura e habilidades."},
-  {d:1,q:"EC2 é um exemplo de:",o:["IaaS","PaaS","SaaS","DBaaS"],a:0,e:"EC2 fornece infraestrutura (VMs) = IaaS."},
-  {d:1,q:"Qual estratégia mantém o workload on-premises?",o:["Retire","Retain","Refactor","Rehost"],a:1,e:"Retain = manter como está (por ora)."},
-  {d:1,q:"O que significa 'pay-as-you-go'?",o:["Contrato anual","Pagamento por uso","Taxa fixa","Gratuito"],a:1,e:"Modelo de cobrança proporcional ao consumo."},
-  {d:1,q:"Quantas perspectivas o AWS CAF tem?",o:["4","5","6","7"],a:2,e:"6 perspectivas: 3 de negócio + 3 técnicas."},
-  {d:1,q:"Qual pilar WAF trata de otimização financeira?",o:["Performance","Otimização de Custos","Sustentabilidade","Excelência Operacional"],a:1,e:"Pilar 'Otimização de Custos' foca em entregar valor pelo menor preço."},
-  {d:1,q:"Qual estratégia envolve reescrever para microsserviços?",o:["Rehost","Replatform","Refactor","Repurchase"],a:2,e:"Refactor = re-arquitetar para maximizar benefícios da nuvem."},
-  {d:1,q:"Elastic Beanstalk é classificado como:",o:["IaaS","PaaS","SaaS","IaC"],a:1,e:"Beanstalk gerencia plataforma; você só envia o código."},
-  {d:1,q:"Qual benefício permite lançar aplicações globais em minutos?",o:["Elasticidade","Agilidade","Globalização","Economias de escala"],a:2,e:"'Tornar-se global em minutos' é um dos 6 benefícios."},
-  // Domínio 2
-  {d:2,q:"No modelo compartilhado, patches do SO em EC2 são de:",o:["AWS","Cliente","Ambos","Fornecedor SO"],a:1,e:"Em IaaS (EC2), SO é responsabilidade do cliente."},
-  {d:2,q:"Qual serviço detecta PII no S3?",o:["GuardDuty","Inspector","Macie","Detective"],a:2,e:"Macie usa ML para detectar dados sensíveis no S3."},
-  {d:2,q:"Qual registra chamadas de API?",o:["CloudWatch","CloudTrail","Config","Artifact"],a:1,e:"CloudTrail = audit log de APIs AWS."},
-  {d:2,q:"SCPs servem para:",o:["Conceder permissões","Restringir permissões","Criar usuários","Cobrar"],a:1,e:"SCPs são guardrails restritivos no Organizations."},
-  {d:2,q:"Shield Standard é:",o:["Pago","Grátis e automático","Só Enterprise","Só US"],a:1,e:"Shield Standard é grátis e ativado automaticamente."},
-  {d:2,q:"Senhas com rotação automática:",o:["Parameter Store","S3","Secrets Manager","KMS"],a:2,e:"Secrets Manager tem rotação automática nativa."},
-  {d:2,q:"SSL/TLS grátis para ELB/CloudFront:",o:["KMS","CloudHSM","ACM","IAM"],a:2,e:"ACM emite e renova certificados SSL/TLS gratuitos."},
-  {d:2,q:"Relatórios de conformidade SOC/ISO:",o:["Config","Artifact","Audit Manager","Security Hub"],a:1,e:"AWS Artifact é o portal de relatórios de conformidade."},
-  {d:2,q:"Security Groups são:",o:["Stateless","Stateful","Aplicados a subnet","Permitem Deny"],a:1,e:"SG é stateful; NACL é stateless."},
-  {d:2,q:"Dashboard central de segurança:",o:["Detective","Security Hub","CloudTrail","Inspector"],a:1,e:"Security Hub agrega GuardDuty, Inspector, Macie, Config."},
-  {d:2,q:"Qual habilita Consolidated Billing?",o:["Control Tower","Organizations","IAM","Artifact"],a:1,e:"Consolidated Billing é recurso do AWS Organizations."},
-  {d:2,q:"MFA exige:",o:["Só senha","Senha + 2º fator","Biometria","Certificado"],a:1,e:"MFA = algo que você sabe + algo que você tem."},
-  {d:2,q:"Landing Zone automatizada:",o:["Organizations","Control Tower","CloudFormation","Config"],a:1,e:"Control Tower automatiza Landing Zone multi-conta."},
-  {d:2,q:"Investigação forense:",o:["GuardDuty","Inspector","Detective","Macie"],a:2,e:"Detective visualiza relações para investigação forense."},
-  {d:2,q:"Vulnerabilidades em EC2/ECR:",o:["GuardDuty","Inspector","Macie","WAF"],a:1,e:"Inspector escaneia CVEs em EC2, ECR e Lambda."},
-  {d:2,q:"WAF protege na camada:",o:["3","4","7","2"],a:2,e:"WAF é firewall de camada 7 (aplicação)."},
-  {d:2,q:"HSM dedicado FIPS L3:",o:["KMS","CloudHSM","ACM","Secrets Manager"],a:1,e:"CloudHSM é HSM dedicado com FIPS 140-2 Level 3."},
-  {d:2,q:"Histórico de mudanças de configuração:",o:["CloudTrail","CloudWatch","Config","Artifact"],a:2,e:"AWS Config registra configurações ao longo do tempo."},
-  {d:2,q:"Boa prática IAM:",o:["Compartilhar root","Chaves no código","Menor privilégio","Sem MFA"],a:2,e:"Princípio do menor privilégio é boa prática fundamental."},
-  {d:2,q:"IAM é:",o:["Regional","Global e grátis","Pago","Por AZ"],a:1,e:"IAM é global e gratuito."},
-  // Domínio 3
-  {d:3,q:"Serverless para código sob eventos:",o:["EC2","Lambda","ECS","Beanstalk"],a:1,e:"Lambda executa código em resposta a eventos, sem servidor."},
-  {d:3,q:"S3 mais barato com recuperação em 12h:",o:["Standard","Glacier Instant","Deep Archive","One Zone-IA"],a:2,e:"Glacier Deep Archive = classe mais barata, recuperação até 12h."},
-  {d:3,q:"Banco relacional 5x MySQL:",o:["RDS","Aurora","DynamoDB","Redshift"],a:1,e:"Aurora é 5x mais rápido que MySQL padrão."},
-  {d:3,q:"CDN global:",o:["Route 53","CloudFront","Global Accelerator","Direct Connect"],a:1,e:"CloudFront é o CDN da AWS."},
-  {d:3,q:"Data warehouse:",o:["DynamoDB","RDS","Redshift","ElastiCache"],a:2,e:"Redshift é o DW colunar da AWS."},
-  {d:3,q:"Maior desconto EC2 (interruptível):",o:["On-Demand","Reserved","Spot","Dedicated"],a:2,e:"Spot = até 90% off, pode ser interrompida."},
-  {d:3,q:"Orquestração de workflows:",o:["SQS","SNS","Step Functions","EventBridge"],a:2,e:"Step Functions orquestra state machines."},
-  {d:3,q:"Migrar 100 PB offline:",o:["Snowcone","Snowball","Snowmobile","DataSync"],a:2,e:"Snowmobile = caminhão de 100 PB."},
-  {d:3,q:"SQL serverless no S3:",o:["Redshift","Athena","Glue","QuickSight"],a:1,e:"Athena executa SQL direto em dados no S3."},
-  {d:3,q:"AWS no data center do cliente:",o:["Direct Connect","Outposts","Storage Gateway","Wavelength"],a:1,e:"Outposts leva infra AWS para o DC do cliente."},
-  {d:3,q:"NoSQL serverless de baixa latência:",o:["RDS","DynamoDB","Aurora","Redshift"],a:1,e:"DynamoDB é NoSQL key-value serverless, <10ms."},
-  {d:3,q:"Link dedicado para AWS:",o:["VPN","Direct Connect","Transit Gateway","NAT"],a:1,e:"Direct Connect fornece link físico dedicado."},
-  {d:3,q:"Load balancer L7:",o:["NLB","ALB","GLB","CLB"],a:1,e:"ALB opera na camada 7 (HTTP/HTTPS)."},
-  {d:3,q:"IaC em JSON/YAML:",o:["CDK","CloudFormation","Terraform","CodeDeploy"],a:1,e:"CloudFormation usa templates JSON/YAML."},
-  {d:3,q:"Acesso a EC2 sem SSH:",o:["Direct Connect","Session Manager","Bastion","VPN"],a:1,e:"Session Manager (SSM) fornece shell sem SSH."},
-  {d:3,q:"Pub/sub push:",o:["SQS","SNS","Kinesis","MQ"],a:1,e:"SNS é pub/sub com entrega push."},
-  {d:3,q:"File system NFS multi-AZ:",o:["EBS","EFS","S3","FSx Windows"],a:1,e:"EFS é NFS gerenciado multi-AZ."},
-  {d:3,q:"IA generativa gerenciada:",o:["SageMaker","Bedrock","Rekognition","Comprehend"],a:1,e:"Bedrock oferece modelos de fundação via API."},
-  {d:3,q:"BI e dashboards:",o:["Athena","Glue","QuickSight","Kinesis"],a:2,e:"QuickSight é a ferramenta de BI da AWS."},
-  {d:3,q:"Ingestão streaming real-time:",o:["SQS","Kinesis","Glue","Athena"],a:1,e:"Kinesis Data Streams ingere dados em tempo real."},
-  {d:3,q:"Regional com 3+ AZs:",o:["Edge Location","Região","Outpost","Local Zone"],a:1,e:"Região AWS contém múltiplas AZs (mínimo 3)."},
-  {d:3,q:"Containers serverless:",o:["EC2","ECS on EC2","Fargate","EKS on EC2"],a:2,e:"Fargate roda containers sem gerenciar servidores."},
-  {d:3,q:"DNS gerenciado:",o:["CloudFront","Route 53","VPC","ACM"],a:1,e:"Route 53 é o serviço DNS gerenciado."},
-  {d:3,q:"Tracing distribuído:",o:["CloudWatch","CloudTrail","X-Ray","Config"],a:2,e:"X-Ray rastreia requisições em microsserviços."},
-  {d:3,q:"Sistema arquivos Windows gerenciado:",o:["EFS","FSx for Windows","S3","EBS"],a:1,e:"FSx for Windows fornece SMB gerenciado."},
-  // Domínio 4
-  {d:4,q:"Plano com TAM dedicado:",o:["Business","Enterprise On-Ramp","Enterprise","Developer"],a:2,e:"TAM dedicado só no plano Enterprise."},
-  {d:4,q:"Comunidade oficial tipo Stack Overflow:",o:["Knowledge Center","re:Post","Support Center","Health Dashboard"],a:1,e:"AWS re:Post é a comunidade oficial gratuita."},
-  {d:4,q:"Entrada de dados AWS é:",o:["Paga","Grátis","Paga só fora EUA","Paga após 1 TB"],a:1,e:"Ingress (entrada) é gratuito; egress é cobrado."},
-  {d:4,q:"Consolidated Billing oferece:",o:["TAM grátis","Fatura única + descontos volume","Suporte 24/7","Trusted Advisor completo"],a:1,e:"Consolidated Billing consolida faturas e agrega descontos."},
-  {d:4,q:"Ferramenta de previsão de custos 12 meses:",o:["CUR","Budgets","Cost Explorer","Pricing Calculator"],a:2,e:"Cost Explorer gera forecast de até 12 meses."},
-  {d:4,q:"Maior desconto EC2 com compromisso 3 anos:",o:["On-Demand","Reserved All Upfront 3y","Spot","Lightsail"],a:1,e:"Reserved 3y All Upfront = até 72% off."},
-  {d:4,q:"Alertas quando custo ultrapassar limite:",o:["Cost Explorer","Budgets","CUR","Pricing Calculator"],a:1,e:"Budgets envia alertas via email/SNS."},
-  {d:4,q:"Freelancers AWS certificados:",o:["AWS Marketplace","AWS IQ","APN","AMS"],a:1,e:"AWS IQ conecta com freelancers certificados."},
+const BANCO = [
+  // ---- Domínio 1 — Conceitos de Nuvem ----
+  {d:1,q:"Qual benefício permite escalar para cima e para baixo automaticamente?",o:["Agilidade","Elasticidade","Durabilidade","Redundância"],c:1,e:"Elasticidade é a capacidade de ajustar recursos conforme a demanda."},
+  {d:1,q:"Qual dos 6 pilares do Well-Architected foi adicionado em 2021?",o:["Segurança","Confiabilidade","Sustentabilidade","Performance"],c:2,e:"Sustentabilidade é o pilar mais recente do WAF."},
+  {d:1,q:"Rehost também é conhecido como:",o:["Lift-and-shift","Refactor","Repurchase","Retain"],c:0,e:"Rehost = lift-and-shift, migração sem alterações."},
+  {d:1,q:"Qual modelo entrega o software pronto ao usuário (como o WorkMail)?",o:["IaaS","PaaS","SaaS","FaaS"],c:2,e:"SaaS entrega o software pronto ao usuário."},
+  {d:1,q:"Nuvem híbrida combina:",o:["2 regiões","AWS + outra cloud","Pública + on-premises","Múltiplas contas"],c:2,e:"Híbrida = nuvem pública + infraestrutura privada/on-premises."},
+  {d:1,q:"Qual NÃO é benefício da nuvem segundo a AWS?",o:["Troca CapEx por OpEx","Global em minutos","Zero responsabilidade de segurança","Economias de escala"],c:2,e:"Segurança é responsabilidade compartilhada, nunca zero."},
+  {d:1,q:"Qual perspectiva do CAF trata de cultura e pessoas?",o:["Governança","Pessoas","Operações","Negócio"],c:1,e:"A perspectiva 'Pessoas' foca em cultura e habilidades."},
+  {d:1,q:"EC2 é um exemplo de:",o:["IaaS","PaaS","SaaS","DBaaS"],c:0,e:"EC2 fornece infraestrutura (VMs) = IaaS."},
+  {d:1,q:"Qual estratégia mantém o workload on-premises por ora?",o:["Retire","Retain","Refactor","Rehost"],c:1,e:"Retain = manter como está (por ora)."},
+  {d:1,q:"O que significa 'pay-as-you-go'?",o:["Contrato anual","Pagamento por uso","Taxa fixa","Gratuito"],c:1,e:"Modelo de cobrança proporcional ao consumo."},
+  {d:1,q:"Quantas perspectivas o AWS CAF tem?",o:["4","5","6","7"],c:2,e:"6 perspectivas: 3 de negócio + 3 técnicas."},
+  {d:1,q:"Qual pilar WAF trata de otimização financeira?",o:["Performance","Otimização de Custos","Sustentabilidade","Excelência Operacional"],c:1,e:"Pilar 'Otimização de Custos' foca em entregar valor pelo menor preço."},
+  {d:1,q:"Qual estratégia envolve reescrever para microsserviços?",o:["Rehost","Replatform","Refactor","Repurchase"],c:2,e:"Refactor = re-arquitetar para maximizar benefícios da nuvem."},
+  {d:1,q:"Elastic Beanstalk é classificado como:",o:["IaaS","PaaS","SaaS","IaC"],c:1,e:"Beanstalk gerencia a plataforma; você só envia o código."},
+  {d:1,q:"Qual benefício permite lançar aplicações globais em minutos?",o:["Elasticidade","Agilidade","Tornar-se global em minutos","Economias de escala"],c:2,e:"'Tornar-se global em minutos' é um dos 6 benefícios da nuvem."},
+
+  // ---- Domínio 2 — Segurança e Conformidade ----
+  {d:2,q:"No modelo de responsabilidade compartilhada, patches do SO em EC2 são de:",o:["AWS","Cliente","Ambos","Fornecedor do SO"],c:1,e:"Em IaaS (EC2), o SO é responsabilidade do cliente."},
+  {d:2,q:"Qual serviço detecta PII (dados sensíveis) no S3?",o:["GuardDuty","Inspector","Macie","Detective"],c:2,e:"Macie usa ML para detectar dados sensíveis no S3."},
+  {d:2,q:"Qual serviço registra chamadas de API na conta?",o:["CloudWatch","CloudTrail","Config","Artifact"],c:1,e:"CloudTrail = audit log de chamadas de API da AWS."},
+  {d:2,q:"SCPs (Service Control Policies) servem para:",o:["Conceder permissões","Restringir permissões","Criar usuários","Cobrar"],c:1,e:"SCPs são guardrails restritivos no AWS Organizations."},
+  {d:2,q:"O AWS Shield Standard é:",o:["Pago","Grátis e automático","Só Enterprise","Só nos EUA"],c:1,e:"Shield Standard é grátis e ativado automaticamente."},
+  {d:2,q:"Qual serviço guarda segredos com rotação automática?",o:["Parameter Store","S3","Secrets Manager","KMS"],c:2,e:"Secrets Manager tem rotação automática nativa."},
+  {d:2,q:"Certificados SSL/TLS grátis para ELB/CloudFront vêm de:",o:["KMS","CloudHSM","ACM","IAM"],c:2,e:"ACM emite e renova certificados SSL/TLS gratuitos."},
+  {d:2,q:"Relatórios de conformidade SOC/ISO ficam em:",o:["Config","Artifact","Audit Manager","Security Hub"],c:1,e:"AWS Artifact é o portal de relatórios de conformidade."},
+  {d:2,q:"Security Groups são:",o:["Stateless","Stateful","Aplicados à subnet","Permitem regras Deny"],c:1,e:"SG é stateful; NACL é stateless."},
+  {d:2,q:"Qual é o dashboard central de segurança que agrega achados?",o:["Detective","Security Hub","CloudTrail","Inspector"],c:1,e:"Security Hub agrega GuardDuty, Inspector, Macie e Config."},
+  {d:2,q:"Qual serviço habilita o Consolidated Billing?",o:["Control Tower","Organizations","IAM","Artifact"],c:1,e:"Consolidated Billing é recurso do AWS Organizations."},
+  {d:2,q:"MFA exige:",o:["Só senha","Senha + 2º fator","Apenas biometria","Apenas certificado"],c:1,e:"MFA = algo que você sabe + algo que você tem."},
+  {d:2,q:"Qual serviço automatiza uma Landing Zone multi-conta?",o:["Organizations","Control Tower","CloudFormation","Config"],c:1,e:"Control Tower automatiza a Landing Zone multi-conta."},
+  {d:2,q:"Qual serviço ajuda em investigação forense de segurança?",o:["GuardDuty","Inspector","Detective","Macie"],c:2,e:"Detective visualiza relações para investigação forense."},
+  {d:2,q:"Qual serviço escaneia vulnerabilidades em EC2/ECR?",o:["GuardDuty","Inspector","Macie","WAF"],c:1,e:"Inspector escaneia CVEs em EC2, ECR e Lambda."},
+  {d:2,q:"O AWS WAF protege na camada:",o:["3","4","7","2"],c:2,e:"WAF é firewall de camada 7 (aplicação)."},
+  {d:2,q:"Qual oferece HSM dedicado com FIPS 140-2 Level 3?",o:["KMS","CloudHSM","ACM","Secrets Manager"],c:1,e:"CloudHSM é HSM dedicado com FIPS 140-2 Level 3."},
+  {d:2,q:"Qual serviço registra histórico de mudanças de configuração?",o:["CloudTrail","CloudWatch","Config","Artifact"],c:2,e:"AWS Config registra a configuração dos recursos ao longo do tempo."},
+  {d:2,q:"Qual é uma boa prática de IAM?",o:["Compartilhar a conta root","Chaves no código","Menor privilégio","Não usar MFA"],c:2,e:"O princípio do menor privilégio é boa prática fundamental."},
+  {d:2,q:"O IAM é:",o:["Regional","Global e grátis","Pago","Por AZ"],c:1,e:"IAM é um serviço global e gratuito."},
+  {d:2,q:"GuardDuty é melhor descrito como:",o:["Firewall de aplicação","Detecção inteligente de ameaças","Cofre de segredos","Scanner de PII"],c:1,e:"GuardDuty detecta ameaças analisando logs (VPC Flow, CloudTrail, DNS)."},
+
+  // ---- Domínio 3 — Tecnologia e Serviços ----
+  {d:3,q:"Qual serviço serverless executa código sob eventos?",o:["EC2","Lambda","ECS","Beanstalk"],c:1,e:"Lambda executa código em resposta a eventos, sem servidor."},
+  {d:3,q:"Qual classe S3 é a mais barata, com recuperação em até 12h?",o:["Standard","Glacier Instant","Deep Archive","One Zone-IA"],c:2,e:"Glacier Deep Archive = classe mais barata, recuperação em até 12h."},
+  {d:3,q:"Qual banco relacional é até 5x mais rápido que MySQL?",o:["RDS","Aurora","DynamoDB","Redshift"],c:1,e:"Aurora é até 5x mais rápido que MySQL padrão."},
+  {d:3,q:"Qual é o CDN global da AWS?",o:["Route 53","CloudFront","Global Accelerator","Direct Connect"],c:1,e:"CloudFront é o CDN da AWS."},
+  {d:3,q:"Qual é o data warehouse da AWS?",o:["DynamoDB","RDS","Redshift","ElastiCache"],c:2,e:"Redshift é o data warehouse colunar da AWS."},
+  {d:3,q:"Qual modelo de compra EC2 dá o maior desconto, mas é interrompível?",o:["On-Demand","Reserved","Spot","Dedicated"],c:2,e:"Spot = até 90% off, mas pode ser interrompida."},
+  {d:3,q:"Qual serviço orquestra workflows (state machines)?",o:["SQS","SNS","Step Functions","EventBridge"],c:2,e:"Step Functions orquestra state machines."},
+  {d:3,q:"Para migrar ~100 PB offline, usa-se:",o:["Snowcone","Snowball","Snowmobile","DataSync"],c:2,e:"Snowmobile = caminhão com capacidade de até 100 PB."},
+  {d:3,q:"Qual serviço roda SQL serverless direto sobre dados no S3?",o:["Redshift","Athena","Glue","QuickSight"],c:1,e:"Athena executa consultas SQL direto em dados no S3."},
+  {d:3,q:"Qual leva infraestrutura AWS ao data center do cliente?",o:["Direct Connect","Outposts","Storage Gateway","Wavelength"],c:1,e:"Outposts leva infraestrutura AWS para o DC do cliente."},
+  {d:3,q:"Qual é o banco NoSQL serverless de baixa latência?",o:["RDS","DynamoDB","Aurora","Redshift"],c:1,e:"DynamoDB é NoSQL key-value serverless, com latência de milissegundos."},
+  {d:3,q:"Qual fornece link físico dedicado para a AWS?",o:["VPN","Direct Connect","Transit Gateway","NAT"],c:1,e:"Direct Connect fornece link físico dedicado."},
+  {d:3,q:"Qual load balancer opera na camada 7?",o:["NLB","ALB","GLB","CLB"],c:1,e:"ALB opera na camada 7 (HTTP/HTTPS)."},
+  {d:3,q:"Qual serviço faz IaC com templates JSON/YAML?",o:["CDK","CloudFormation","Terraform","CodeDeploy"],c:1,e:"CloudFormation usa templates JSON/YAML."},
+  {d:3,q:"Qual permite acesso a EC2 sem abrir SSH?",o:["Direct Connect","Session Manager","Bastion","VPN"],c:1,e:"Session Manager (SSM) fornece shell sem expor SSH."},
+  {d:3,q:"Qual serviço é pub/sub com entrega push?",o:["SQS","SNS","Kinesis","MQ"],c:1,e:"SNS é pub/sub com entrega push."},
+  {d:3,q:"Qual é o file system NFS gerenciado multi-AZ?",o:["EBS","EFS","S3","FSx for Windows"],c:1,e:"EFS é NFS gerenciado e multi-AZ."},
+  {d:3,q:"Qual serviço dá acesso a modelos de IA generativa via API?",o:["SageMaker","Bedrock","Rekognition","Comprehend"],c:1,e:"Bedrock oferece modelos de fundação via API gerenciada."},
+  {d:3,q:"Qual é a ferramenta de BI e dashboards da AWS?",o:["Athena","Glue","QuickSight","Kinesis"],c:2,e:"QuickSight é a ferramenta de BI da AWS."},
+  {d:3,q:"Qual serviço ingere streaming em tempo real?",o:["SQS","Kinesis","Glue","Athena"],c:1,e:"Kinesis Data Streams ingere dados em tempo real."},
+  {d:3,q:"O que é uma Região AWS?",o:["Edge Location","Área geográfica com 3+ AZs","Outpost","Local Zone"],c:1,e:"Uma Região contém múltiplas AZs (mínimo de 3)."},
+  {d:3,q:"Qual serviço roda containers sem gerenciar servidores?",o:["EC2","ECS no EC2","Fargate","EKS no EC2"],c:2,e:"Fargate roda containers serverless, sem gerenciar servidores."},
+  {d:3,q:"Qual é o serviço de DNS gerenciado?",o:["CloudFront","Route 53","VPC","ACM"],c:1,e:"Route 53 é o serviço de DNS gerenciado."},
+  {d:3,q:"Qual faz tracing distribuído de requisições?",o:["CloudWatch","CloudTrail","X-Ray","Config"],c:2,e:"X-Ray rastreia requisições em microsserviços."},
+  {d:3,q:"Qual é o sistema de arquivos Windows (SMB) gerenciado?",o:["EFS","FSx for Windows","S3","EBS"],c:1,e:"FSx for Windows fornece SMB gerenciado."},
+  {d:3,q:"Qual serviço de mensageria desacopla com filas?",o:["SNS","SQS","Kinesis","EventBridge"],c:1,e:"SQS é fila de mensagens que desacopla componentes (pull)."},
+
+  // ---- Domínio 4 — Cobrança, Preços e Suporte ----
+  {d:4,q:"Qual plano de suporte inclui TAM dedicado?",o:["Business","Enterprise On-Ramp","Enterprise","Developer"],c:2,e:"O TAM dedicado existe apenas no plano Enterprise."},
+  {d:4,q:"Qual é a comunidade oficial gratuita (estilo Q&A)?",o:["Knowledge Center","re:Post","Support Center","Health Dashboard"],c:1,e:"AWS re:Post é a comunidade oficial gratuita."},
+  {d:4,q:"A transferência de dados de entrada (ingress) é:",o:["Paga","Grátis","Paga só fora dos EUA","Paga após 1 TB"],c:1,e:"Ingress (entrada) é gratuito; egress (saída) é cobrado."},
+  {d:4,q:"O Consolidated Billing oferece:",o:["TAM grátis","Fatura única + descontos por volume","Suporte 24/7","Trusted Advisor completo"],c:1,e:"Consolidated Billing consolida faturas e agrega descontos por volume."},
+  {d:4,q:"Qual ferramenta gera previsão de custos de até 12 meses?",o:["CUR","Budgets","Cost Explorer","Pricing Calculator"],c:2,e:"Cost Explorer gera forecast de até 12 meses."},
+  {d:4,q:"Qual opção EC2 dá maior desconto com compromisso de 3 anos?",o:["On-Demand","Reserved All Upfront 3 anos","Spot","Lightsail"],c:1,e:"Reserved 3 anos All Upfront chega a até 72% de desconto."},
+  {d:4,q:"Qual serviço alerta quando o custo ultrapassa um limite?",o:["Cost Explorer","Budgets","CUR","Pricing Calculator"],c:1,e:"AWS Budgets envia alertas via e-mail/SNS."},
+  {d:4,q:"Qual serviço conecta com freelancers AWS certificados?",o:["AWS Marketplace","AWS IQ","APN","AMS"],c:1,e:"AWS IQ conecta clientes a especialistas certificados."},
 ];
 
-const DOMAIN_LABELS = {
-  1:"Domínio 1 — Conceitos de Nuvem (24%)",
-  2:"Domínio 2 — Segurança e Conformidade (30%)",
-  3:"Domínio 3 — Tecnologia e Serviços (34%)",
-  4:"Domínio 4 — Cobrança, Preços e Suporte (12%)"
+const NOMES_DOMINIO = {
+  1:"Conceitos de Nuvem",
+  2:"Segurança e Conformidade",
+  3:"Tecnologia e Serviços",
+  4:"Cobrança, Preços e Suporte"
 };
+const APROVACAO = 0.70;
 
-const quiz = document.getElementById('quiz');
-const progress = document.getElementById('progress');
-let currentDomain = 0;
+let questoes=[], respostas=[], atual=0;
 
-QUESTIONS.forEach((q, i) => {
-  if(q.d !== currentDomain){
-    currentDomain = q.d;
-    const h = document.createElement('h2');
-    h.className = 'domain';
-    h.textContent = DOMAIN_LABELS[q.d];
-    quiz.appendChild(h);
+function embaralhar(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
   }
-  const div = document.createElement('div');
-  div.className = 'q';
-  div.id = `q${i}`;
-  div.innerHTML = `<div class="q-title"><span class="q-num">${i+1}.</span>${q.q}</div>` +
-    q.o.map((opt,j)=>`<label class="opt" data-i="${j}"><input type="radio" name="q${i}" value="${j}"> ${String.fromCharCode(65+j)}) ${opt}</label>`).join('') +
-    `<div class="expl" id="e${i}"><strong>Resposta: ${String.fromCharCode(65+q.a)})</strong> — ${q.e}</div>`;
-  quiz.appendChild(div);
-});
-
-quiz.addEventListener('change', e => {
-  if(e.target.name){
-    document.getElementById(e.target.name).classList.add('answered');
-    const answered = document.querySelectorAll('.q.answered').length;
-    progress.style.width = (answered/QUESTIONS.length*100) + '%';
-  }
-});
-
-// Timer
-let timeLeft = 90*60;
-const timerEl = document.getElementById('timer');
-const timerId = setInterval(() => {
-  timeLeft--;
-  const m = Math.floor(timeLeft/60), s = timeLeft%60;
-  timerEl.textContent = `⏱ ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  if(timeLeft <= 0){ clearInterval(timerId); submit(); }
-  if(timeLeft < 300) timerEl.style.background = 'var(--err)';
-},1000);
-
-function submit(){
-  clearInterval(timerId);
-  let correct = 0;
-  const byDomain = {1:{c:0,t:0},2:{c:0,t:0},3:{c:0,t:0},4:{c:0,t:0}};
-  QUESTIONS.forEach((q,i) => {
-    byDomain[q.d].t++;
-    const sel = document.querySelector(`input[name="q${i}"]:checked`);
-    const picked = sel ? parseInt(sel.value) : -1;
-    const labels = document.querySelectorAll(`#q${i} .opt`);
-    labels.forEach((l,j) => {
-      if(j === q.a) l.classList.add('correct');
-      if(j === picked && picked !== q.a) l.classList.add('wrong');
-    });
-    document.getElementById(`e${i}`).classList.add('show');
-    if(picked === q.a){ correct++; byDomain[q.d].c++; }
-  });
-  const pct = Math.round(correct/QUESTIONS.length*100);
-  const pass = pct >= 70;
-  const r = document.getElementById('result');
-  r.innerHTML = `<h2>${pass?'Aprovado!':'Continue Estudando'}</h2>
-    <div class="score ${pass?'pass':'fail'}">${correct} / ${QUESTIONS.length} (${pct}%)</div>
-    <div class="bars">
-      ${[1,2,3,4].map(d => {
-        const dPct = Math.round(byDomain[d].c/byDomain[d].t*100);
-        return `<div class="bar"><span>${DOMAIN_LABELS[d]}</span><strong>${byDomain[d].c}/${byDomain[d].t} (${dPct}%)</strong></div>`;
-      }).join('')}
-    </div>
-    <p style="color:var(--muted)">${pass?'Você está pronto para agendar o exame oficial. Revise as questões marcadas em vermelho.':'Meta: ≥ 70%. Revise os domínios com menor aproveitamento e refaça o simulado.'}</p>`;
-  r.classList.add('show');
-  r.scrollIntoView({behavior:'smooth'});
+  return a;
 }
 
-document.getElementById('submit').addEventListener('click', submit);
-document.getElementById('reset').addEventListener('click', () => location.reload());
+function iniciar(){
+  // embaralha as questões e as opções de cada uma
+  questoes = embaralhar(BANCO).map(orig=>{
+    const idx = orig.o.map((_,i)=>i);
+    const idxEmb = embaralhar(idx);
+    return {
+      d:orig.d, q:orig.q, e:orig.e,
+      o: idxEmb.map(i=>orig.o[i]),
+      c: idxEmb.indexOf(orig.c)
+    };
+  });
+  respostas = new Array(questoes.length).fill(null);
+  atual = 0;
+  document.getElementById('inicio').classList.add('hidden');
+  document.getElementById('resultado').classList.add('hidden');
+  document.getElementById('revisao').classList.add('hidden');
+  document.getElementById('quiz').classList.remove('hidden');
+  render();
+}
+
+function render(){
+  const total=questoes.length;
+  const Q=questoes[atual];
+  document.getElementById('progresso').style.width=((atual)/total*100)+'%';
+  document.getElementById('contador').textContent=`Questão ${atual+1} de ${total}`;
+  document.getElementById('dominioLabel').textContent=`Respondidas: ${respostas.filter(r=>r!==null).length}`;
+  document.getElementById('tagDominio').textContent='Domínio '+Q.d+' — '+NOMES_DOMINIO[Q.d];
+  document.getElementById('textoPergunta').textContent=Q.q;
+
+  const cont=document.getElementById('opcoes');
+  cont.innerHTML='';
+  const letras=['A','B','C','D'];
+  Q.o.forEach((texto,i)=>{
+    const b=document.createElement('button');
+    b.className='opt'+(respostas[atual]===i?' sel':'');
+    b.innerHTML='<span class="letra">'+letras[i]+'</span>'+texto;
+    b.onclick=()=>{respostas[atual]=i;render();};
+    cont.appendChild(b);
+  });
+
+  document.getElementById('btnVoltar').disabled=(atual===0);
+  document.getElementById('btnAvancar').textContent=(atual===total-1)?'Finalizar ✓':'Próxima →';
+}
+
+function voltar(){ if(atual>0){atual--;render();} }
+
+function avancar(){
+  if(atual<questoes.length-1){ atual++; render(); }
+  else{ finalizar(); }
+}
+
+function finalizar(){
+  const naoResp=respostas.filter(r=>r===null).length;
+  if(naoResp>0 && !confirm(`Você deixou ${naoResp} questão(ões) sem resposta. Finalizar mesmo assim?`)) return;
+
+  let acertos=0;
+  const porDominio={1:{a:0,t:0},2:{a:0,t:0},3:{a:0,t:0},4:{a:0,t:0}};
+  questoes.forEach((Q,i)=>{
+    porDominio[Q.d].t++;
+    if(respostas[i]===Q.c){ acertos++; porDominio[Q.d].a++; }
+  });
+  const total=questoes.length;
+  const pct=acertos/total;
+  const nota=Math.round(pct*1000);
+  const aprovado=pct>=APROVACAO;
+
+  document.getElementById('quiz').classList.add('hidden');
+  const tela=document.getElementById('resultado');
+  tela.classList.remove('hidden');
+
+  document.getElementById('selo').textContent=aprovado?'✅ Aprovado':'❌ Não aprovado';
+  const notaEl=document.getElementById('notaTexto');
+  notaEl.textContent=nota+' / 1000';
+  notaEl.className='nota '+(aprovado?'ok':'fail');
+  document.getElementById('acertosTexto').textContent=
+    `${acertos} de ${total} acertos (${Math.round(pct*100)}%) — nota de corte: 700`;
+
+  const dEl=document.getElementById('dominios');
+  dEl.innerHTML='<div style="font-weight:600;margin-bottom:6px">Desempenho por domínio</div>';
+  for(let d=1;d<=4;d++){
+    const o=porDominio[d];
+    const p=o.t?Math.round(o.a/o.t*100):0;
+    dEl.innerHTML+=`<div class="dlinha"><span>D${d} — ${NOMES_DOMINIO[d]}</span><b>${o.a}/${o.t} (${p}%)</b></div>`;
+  }
+  window.scrollTo(0,0);
+}
+
+function toggleRevisao(){
+  const rev=document.getElementById('revisao');
+  if(!rev.classList.contains('hidden')){ rev.classList.add('hidden'); return; }
+  const letras=['A','B','C','D'];
+  let html='<h2 style="color:var(--navy);font-size:1.2rem;margin-bottom:12px">Revisão comentada</h2>';
+  questoes.forEach((Q,i)=>{
+    const acertou=respostas[i]===Q.c;
+    html+=`<div class="rev-item ${acertou?'ok':'fail'}">`;
+    html+=`<div class="rev-q">${i+1}. ${Q.q}</div>`;
+    if(respostas[i]===null){
+      html+=`<div class="rev-a e">Você não respondeu.</div>`;
+    }else if(!acertou){
+      html+=`<div class="rev-a e">Sua resposta: ${letras[respostas[i]]}) ${Q.o[respostas[i]]}</div>`;
+    }
+    html+=`<div class="rev-a c">Correta: ${letras[Q.c]}) ${Q.o[Q.c]}</div>`;
+    html+=`<div class="exp">${Q.e}</div></div>`;
+  });
+  rev.innerHTML=html;
+  rev.classList.remove('hidden');
+  rev.scrollIntoView({behavior:'smooth'});
+}
+
+function reiniciar(){ iniciar(); window.scrollTo(0,0); }
 </script>
 </body>
 </html>

@@ -14,11 +14,13 @@ Esta pasta contém a versão **interativa** do simulado final, publicável via *
 
 ## Recursos do simulado
 
-- 65 questões renderizadas via JS
-- Cronômetro de 90 min (fica vermelho nos últimos 5 min)
-- Barra de progresso
-- Correção visual (verde/vermelho) + explicação por questão
-- Placar por domínio com percentual
+- 70 questões, uma por tela (assistente passo a passo)
+- Questões **e** alternativas embaralhadas a cada tentativa
+- Barra de progresso + contador de respondidas
+- Navegação anterior/próxima
+- Nota final em escala /1000 (corte 700 = 70%)
+- Desempenho por domínio com percentual
+- Revisão comentada ao final (sua resposta × correta + explicação)
 - Layout responsivo (mobile/desktop)
 
 ## Testar localmente
