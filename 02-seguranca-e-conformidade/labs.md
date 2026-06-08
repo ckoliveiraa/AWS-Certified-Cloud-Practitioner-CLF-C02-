@@ -177,14 +177,14 @@
 
 ---
 
-## Lab 2.9 — CloudWatch Logs + Alarm + SNS (ponta a ponta, só console) 🟡
+## Lab 2.9 — CloudWatch Logs + Alarm + SNS 🟡
 
 > Pratica a [aula 2.7 — Auditoria](./2.7-auditoria-conformidade.md) — diferença entre **log de aplicação** (CloudWatch Logs) e **log de API** (CloudTrail).
 >
-> 🎯 **O que você vai sentir na prática:** uma app gera **logs** → uma **métrica** sobe → um **CloudWatch Alarm** muda de estado → o alarme avisa o **SNS** → você recebe um **e-mail de verdade**. Esse é exatamente o fluxo que a prova cobra.
+> 🎯 **O que você vai sentir na prática:** uma app gera **logs** → uma **métrica** sobe → um **CloudWatch Alarm** muda de estado → o alarme avisa o **SNS** → você recebe um **e-mail**. Esse é exatamente o fluxo que a prova cobra.
 
-### Parte A — Gerar logs de aplicação de verdade (Lambda)
-> Em vez de injetar log na unha, vamos rodar uma mini-aplicação. Toda Lambda escreve automaticamente no CloudWatch Logs.
+### Parte A — Gerar logs de aplicação (Lambda)
+> Vamos rodar uma mini-aplicação para produzir logs reais. Toda Lambda escreve automaticamente no CloudWatch Logs.
 
 1. **Lambda** → **Create function** → **Author from scratch**.
 2. **Function name:** `learning-log-demo`. **Runtime:** `Python 3.13` (ou a mais nova). **Architecture:** padrão.
@@ -222,7 +222,7 @@
 
 > Estado inicial: provavelmente `Insufficient data` (ainda não houve erro). Normal.
 
-### Parte D — Disparar o alarme de verdade
+### Parte D — Disparar o alarme
 1. Volte na **Lambda** → aba **Configuration** → **Environment variables** → **Edit** → **Add** → `FORCE_ERROR` = `true` → **Save**.
 2. Aba **Test** → **Test** algumas vezes (3–4×). Cada execução agora **falha de propósito** → a métrica `Errors` sobe.
 3. **CloudWatch** → **Alarms**: em 1–3 min o `learning-lambda-errors` muda `OK/Insufficient data → In alarm` 🔴.
