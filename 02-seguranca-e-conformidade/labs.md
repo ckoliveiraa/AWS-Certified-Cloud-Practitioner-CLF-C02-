@@ -182,8 +182,6 @@
 > Pratica a [aula 2.7 — Auditoria](./2.7-auditoria-conformidade.md) — diferença entre **log de aplicação** (CloudWatch Logs) e **log de API** (CloudTrail).
 >
 > 🎯 **O que você vai sentir na prática:** uma app gera **logs** → uma **métrica** sobe → um **CloudWatch Alarm** muda de estado → o alarme avisa o **SNS** → você recebe um **e-mail de verdade**. Esse é exatamente o fluxo que a prova cobra.
->
-> ✅ **Tudo pelo console, sem CLI nem CloudShell.** A versão antiga dependia de `put-log-events` (que conta nova não tem) — aqui os logs nascem sozinhos de uma Lambda real.
 
 ### Parte A — Gerar logs de aplicação de verdade (Lambda)
 > Em vez de injetar log na unha, vamos rodar uma mini-aplicação. Toda Lambda escreve automaticamente no CloudWatch Logs.
