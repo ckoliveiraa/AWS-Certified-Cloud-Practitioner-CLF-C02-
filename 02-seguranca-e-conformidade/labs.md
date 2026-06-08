@@ -177,6 +177,71 @@
 
 ---
 
+## Lab 2.9 — CloudWatch Logs + Alarm + SNS (ponta a ponta, só console) 🟡
+
+> Pratica a [aula 2.7 — Auditoria](./2.7-auditoria-conformidade.md) — diferença entre **log de aplicação** (CloudWatch Logs) e **log de API** (CloudTrail).
+>
+> 🎯 **O que você vai sentir na prática:** uma app gera **logs** → uma **métrica** sobe → um **CloudWatch Alarm** muda de estado → o alarme avisa o **SNS** → você recebe um **e-mail de verdade**. Esse é exatamente o fluxo que a prova cobra.
+>
+> ✅ **Tudo pelo console, sem CLI nem CloudShell.** A versão antiga dependia de `put-log-events` (que conta nova não tem) — aqui os logs nascem sozinhos de uma Lambda real.
+
+### Parte A — Gerar logs de aplicação de verdade (Lambda)
+> Em vez de injetar log na unha, vamos rodar uma mini-aplicação. Toda Lambda escreve automaticamente no CloudWatch Logs.
+
+1. **Lambda** → **Create function** → **Author from scratch**.
+2. **Function name:** `learning-log-demo`. **Runtime:** `Python 3.13` (ou a mais nova). **Architecture:** padrão.
+3. **Create function**.
+4. Na aba **Code**, substitua o conteúdo por:
+   ```python
+   import os
+
+   def lambda_handler(event, context):
+       print("App rodando normalmente — log de aplicação no CloudWatch")
+       if os.environ.get("FORCE_ERROR") == "true":
+           raise Exception("Erro fake na app para disparar o alarme")
+       return {"status": "ok"}
+   ```
+5. **Deploy** (botão laranja).
+6. Aba **Test** → **Create new event** → nome `t1` → deixe o JSON padrão → **Save** → **Test**.
+7. Verá **Execution result: succeeded** e a seção **Log output**.
+
+### Parte B — Ver os logs no CloudWatch
+1. **CloudWatch** → **Log groups**. Aparece o grupo `/aws/lambda/learning-log-demo` (criado sozinho).
+2. Entre nele → clique no **log stream** mais recente → veja a linha `App rodando normalmente...` com timestamp.
+
+> 💡 **Ligação com a aula 2.7:** isso é **log de aplicação** (texto que a app escreveu). Quem chamou a *API* `Invoke` da Lambda apareceria no **CloudTrail**, não aqui. São coisas diferentes.
+
+### Parte C — Criar o canal de aviso (SNS) e o alarme
+1. **SNS** → **Topics** → **Create topic** → **Standard** → nome `learning-alarms` → **Create topic**.
+2. **Create subscription** → **Protocol:** `Email` → **Endpoint:** seu e-mail → **Create subscription**.
+3. Abra seu e-mail e clique em **Confirm subscription** (status vira `Confirmed`). **Sem confirmar, nada chega.**
+4. **CloudWatch** → **Alarms** → **All alarms** → **Create alarm** → **Select metric**.
+5. **Lambda** → **By Function Name** → marque a métrica `Errors` da função `learning-log-demo` → **Select metric**.
+6. **Statistic:** `Sum` · **Period:** `1 minute`.
+7. **Threshold type:** Static · **Greater/Equal** · **than `1`** → **Next**.
+8. **Notification:** **In alarm** → **Select an existing SNS topic** → `learning-alarms` → **Next**.
+9. **Alarm name:** `learning-lambda-errors` → **Next** → **Create alarm**.
+
+> Estado inicial: provavelmente `Insufficient data` (ainda não houve erro). Normal.
+
+### Parte D — Disparar o alarme de verdade
+1. Volte na **Lambda** → aba **Configuration** → **Environment variables** → **Edit** → **Add** → `FORCE_ERROR` = `true` → **Save**.
+2. Aba **Test** → **Test** algumas vezes (3–4×). Cada execução agora **falha de propósito** → a métrica `Errors` sobe.
+3. **CloudWatch** → **Alarms**: em 1–3 min o `learning-lambda-errors` muda `OK/Insufficient data → In alarm` 🔴.
+4. **Cheque seu e-mail:** chega a notificação do SNS com o nome do alarme e o motivo. 🎉
+
+> 🎯 **Frase para a prova:** *"CloudWatch coleta a métrica → Alarm muda de estado quando passa do threshold → publica no SNS → SNS notifica (e-mail/SMS/Lambda/SQS)."*
+
+### 🧹 Limpeza ao terminar este lab
+1. **Lambda** → `learning-log-demo` → **Actions** → **Delete** (apaga a função).
+2. **CloudWatch** → **Log groups** → `/aws/lambda/learning-log-demo` → **Delete** (não some sozinho).
+3. **CloudWatch** → **Alarms** → `learning-lambda-errors` → **Delete**.
+4. **SNS** → delete a **subscription** e depois o **topic** `learning-alarms`.
+
+> 🟡 **Custo:** Lambda tem **1 milhão de execuções grátis/mês para sempre**. CloudWatch dá **10 métricas customizadas, 10 alarmes e 5 GB de logs grátis/mês**. SNS: **1.000 notificações de e-mail grátis/mês**. Este lab fica **dentro do Free Tier** — mas apague o log group e o alarme para não acumular nada depois dos 12 meses.
+
+---
+
 ## Lab 2.10 — AWS Config (audita mudanças) 🔴
 
 > Pratica a [aula 2.7 — Auditoria](./2.7-auditoria-conformidade.md). **Atenção:** Config cobra por item gravado.
@@ -281,6 +346,7 @@ Para não acumular custo:
 - [ ] Lab 2.6 — Parameter Store + Secrets Manager comparados
 - [ ] Lab 2.7 — Stateful (SG) vs Stateless (NACL) na prática
 - [ ] Lab 2.8 — CloudTrail capturando management events
+- [ ] Lab 2.9 — CloudWatch Logs (Lambda) + Alarm + SNS por e-mail
 - [ ] Lab 2.10 — Config detectando bucket público
 - [ ] Lab 2.11 — GuardDuty com sample findings
 - [ ] Lab 2.12 — Trusted Advisor 6 checks grátis
@@ -295,6 +361,7 @@ Para evitar custo inesperado, ao terminar:
 - [ ] **Delete** secret do Secrets Manager (Lab 2.6)
 - [ ] **Stop recording** no AWS Config (Lab 2.10)
 - [ ] **Disable** GuardDuty (Lab 2.11)
+- [ ] **Delete** Lambda, log group, alarme e topic SNS (Lab 2.9)
 ---
 
 [← Voltar ao módulo](./README.md)
